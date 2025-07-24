@@ -16,3 +16,6 @@ Suggests:
     callthat,
     httr
 Config/testthat/edition: 3
+Remotes:
+    birdflow-science/BirdFlowR,
+    edgararuiz/callthat
