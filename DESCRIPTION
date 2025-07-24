@@ -13,5 +13,7 @@ Imports:
     BirdFlowR,
     plumber
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    callthat,
+    httr
 Config/testthat/edition: 3
