@@ -5,7 +5,7 @@ library(httr)
 test_that("example API test", {
   expect_silent({
     # Start plumber API
-    local_api <- call_that_plumber_start(api_folder = system.file("plumber/flow/endpoints", package = "BirdFlowAPI"), api_file = "another_endpoint.R")
+    local_api <- call_that_plumber_start(api_folder = system.file("plumber", "flow", "endpoints", package = "BirdFlowAPI"), api_file = "status.R")
     # Start test session
     api_session <- call_that_session_start(local_api)
   })
