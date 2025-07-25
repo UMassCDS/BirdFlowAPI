@@ -1,11 +1,12 @@
-BirdFlowR::birdflow_options(collection_url = "https://birdflow-science.s3.amazonaws.com/avian_flu/")
+library(BirdFlowR)
+birdflow_options(collection_url = "https://birdflow-science.s3.amazonaws.com/avian_flu/")
 
 #* Test and generate a plot from a BirdFlow model
 #* @param model_name The model code (e.g., "ambduc")
 #* @post /test_model
 function(model_name = "ambduc") {
-  bf <- BirdFlowR::load_model(model_name)
-  rts <- BirdFlowR::route(bf, 5, season = "prebreeding")
+  bf <- load_model(model_name)
+  rts <- route(bf, 5, season = "prebreeding")
 
   dir.create("/tmp/plots", showWarnings = FALSE, recursive = TRUE)
   plot_path <- paste0("/tmp/plots/", model_name, "_plot.png")
