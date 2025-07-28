@@ -1,58 +1,3 @@
-## code to prepare `DATASET` dataset goes here
-
-# usethis::use_data(DATASET, overwrite = TRUE)
-
-
-# Global configuration
-
-#------------------------------------------------------------------------------#
-#  Load species
-#------------------------------------------------------------------------------#
-
-# Using JSON so that the taxa file is identical to that used by front end:
-#  avianfluapp/src/assets/taxa.json
-species <- jsonlite::read_json(file.path("data-raw", "taxa.json")) |> 
-   do.call(rbind, args = _) |> 
-   as.data.frame()
-names(species) <- c("species", "label")
-species$species <- as.character(species$species)
-species$label <- as.character(species$label)
-species <- species[!species$species == "total", ]
-
-
-#-------------------------------------------------------------------------------
-# Load Population and Join to species
-#-------------------------------------------------------------------------------
-
-# File from  
-# https://github.com/birdflow-science/BirdFlowWork/tree/main/population/data/final
-pop <- read.csv(file.path("data-raw", "population.csv")) |>
-   dplyr::filter(species_code %in% species$species) |>
-   dplyr::select(species = species_code, population = americas_pop)
-
-species <- dplyr::left_join(species, pop, by = dplyr::join_by("species" == "species"))
-
-
-#-------------------------------------------------------------------------------
-# Load BirdFlow models
-#-------------------------------------------------------------------------------
-BirdFlowR::birdflow_options(collection_url = "https://birdflow-science.s3.amazonaws.com/avian_flu/")
-index <- BirdFlowR::load_collection_index()
-if(!all(species$species %in% index$species_code)) {
-   miss <- setdiff(species$species, index$species_code)
-   stop("Expected BirdFlow models:", paste(miss, collapse = ", "), " are missing from the model collection." )
-}
-
-# This is slow so skipping if it's already done - useful when developing to 
-# avoid having to wait to reload. 
-if(!exists("models") || !is.environment(models) || !all(species$species %in% names(models))) {
-   models <- new.env()
-   for (sp in species$species) {
-      print(paste0("Loading model for species: ", sp))
-      models[[sp]] <- BirdFlowR::load_model(model = sp)
-   }
-}
-
 # Define extent of exported data (ai_app_extent)
 corners = data.frame(x = c(-170, -170, -50, -50), y = c(10, 80, 10, 80))
 csf <- sf::st_as_sf(corners,coords = c("x", "y"))
@@ -74,10 +19,3 @@ s3_flow_url <- "https://avianinfluenza.s3.us-east-2.amazonaws.com/flow/"
 local_cache <- tempdir()
 if(!file.exists(local_cache))
    dir.create(local_cache)
-
-## Create flow colors file -- might change later
-# ebirdst::ebirdst_palettes(n = 256, type = "weekly") |> 
-#   col2rgb() |> t() |> saveRDS(file = "config/flow_cols.Rds")
-
-# Load flow colors
-flow_colors <- readRDS(file.path("data-raw", "flow_cols.Rds"))
