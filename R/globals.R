@@ -8,6 +8,7 @@ web_corners <- sf::st_transform(csf, ai_app_crs)
 ai_app_extent <- terra::ext(web_corners)
 rm(corners, csf, web_corners)
 
+
 # Configure S3 bucket, its url and the path within it used for flow output
 s3_bucket_name <- "avianinfluenza"
 s3_flow_path <- "flow/"
