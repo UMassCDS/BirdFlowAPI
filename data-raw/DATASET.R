@@ -36,8 +36,8 @@ species <- dplyr::left_join(species, pop, by = dplyr::join_by("species" == "spec
 #-------------------------------------------------------------------------------
 # Load BirdFlow models
 #-------------------------------------------------------------------------------
-birdflow_options(collection_url = "https://birdflow-science.s3.amazonaws.com/avian_flu/")
-index <- load_collection_index()
+BirdFlowR::birdflow_options(collection_url = "https://birdflow-science.s3.amazonaws.com/avian_flu/")
+index <- BirdFlowR::load_collection_index()
 if(!all(species$species %in% index$species_code)) {
    miss <- setdiff(species$species, index$species_code)
    stop("Expected BirdFlow models:", paste(miss, collapse = ", "), " are missing from the model collection." )
@@ -48,7 +48,8 @@ if(!all(species$species %in% index$species_code)) {
 if(!exists("models") || !is.environment(models) || !all(species$species %in% names(models))) {
    models <- new.env()
    for (sp in species$species) {
-      models[[sp]] <- load_model(model = sp)
+      print(paste0("Loading model for species: ", sp))
+      models[[sp]] <- BirdFlowR::load_model(model = sp)
    }
 }
 
