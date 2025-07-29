@@ -20,4 +20,5 @@ test_that("example API test", {
 
   # Close session and plumber API
   expect_null(callthat::call_that_session_stop(api_session))
+  expect_null(callthat::call_that_plumber_stop(api_session))
 })
