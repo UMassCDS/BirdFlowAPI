@@ -70,7 +70,11 @@ if (FALSE) {
 #'    `week`
 #'    `url`
 #'    `legend`
-flow <- function(loc, week, taxa, n, direction = "forward") {
+flow <- function(loc, week, taxa, n, direction = "forward", aws_s3_transfer = TRUE) {
+
+  load(system.file("data", "species.rda", package = "BirdFlowAPI"))
+  load(system.file("data", "flow_colors.rda", package = "BirdFlowAPI"))
+
   format_error <- function(message, status = "error") {
     list(
       start = list(
@@ -156,18 +160,18 @@ flow <- function(loc, week, taxa, n, direction = "forward") {
     bf <- models[[sp]]
 
     # Initial distribution
-    xy <- latlon_to_xy(lat_lon$lat, lat_lon[, 2], bf = bf)
+    xy <- BirdFlowR::latlon_to_xy(lat_lon$lat, lat_lon[, 2], bf = bf)
 
 
     # Check for valid starting location(s)
     # skip species without
-    valid <- is_location_valid(bf, timestep = week, x = xy$x, y = xy$y)
+    valid <- BirdFlowR::is_location_valid(bf, timestep = week, x = xy$x, y = xy$y)
     if (!all(valid)) {
       skipped[i] <- TRUE
       next
     }
 
-    start_distr <- as_distr(xy, bf, )
+    start_distr <- BirdFlowR::as_distr(xy, bf, )
     if (nrow(lat_lon) > 1) {
       # If multiple xy  start distribution will contain multiple
       # one-hot distributions in a matrix
@@ -184,15 +188,15 @@ flow <- function(loc, week, taxa, n, direction = "forward") {
     )
 
     # Proportion of population in starting location
-    location_i <- xy_to_i(xy, bf = bf)
-    initial_population_distr <- get_distr(bf, which = week)
+    location_i <- BirdFlowR::xy_to_i(xy, bf = bf)
+    initial_population_distr <- BirdFlowR::get_distr(bf, which = week)
     start_proportion <- initial_population_distr[location_i] / 1
 
     # Convert to Birds / sq km
     abundance <- pred * species$population[species$species == sp] /
-      prod(res(bf) / 1000) * start_proportion
+      prod(terra::res(bf) / 1000) * start_proportion
 
-    r <- rasterize_distr(abundance, bf = bf, format = "terra")
+    r <- BirdFlowR::rasterize_distr(abundance, bf = bf, format = "terra")
 
     rasters[[i]] <- r
   }
@@ -233,7 +237,7 @@ flow <- function(loc, week, taxa, n, direction = "forward") {
 
   # Set paths
 
-  pred_weeks <- lookup_timestep_sequence(bf, start = week, n = n, direction = direction)
+  pred_weeks <- BirdFlowR::lookup_timestep_sequence(bf, start = week, n = n, direction = direction)
 
   # File names (no path)
   png_files <- paste0(flow_type, "_", taxa, "_", pred_weeks, ".png")
@@ -264,24 +268,27 @@ flow <- function(loc, week, taxa, n, direction = "forward") {
     save_json_palette(symbology_paths[i], max = max_val, col_matrix = flow_colors)
   }
 
-  # Copy Files to S3
-  a <- tryCatch(error = identity, expr = {
-    s3 <- paws::s3()
-    local_paths <- c(png_paths, symbology_paths, tiff_path)
-    bucket_paths <- c(png_bucket_paths, symbology_bucket_paths, tiff_bucket_path)
-    for (i in seq_along(local_paths)) {
-      s3$put_object(
-        Bucket = s3_bucket_name,
-        Key = bucket_paths[i],
-        Body = readBin(local_paths[i], "raw", file.info(local_paths[i])$size)
-      )
-    }
-  })
-  if (inherits(a, "error")) {
-    if (grepl("No compatible credentials provided.", a$message)) {
-      return(format_error("Failed to upload to S3. No compatible credentials provided"))
-    } else {
-      return(format_error("Failed to upload to S3"))
+  if (aws_s3_transfer) {
+    # Copy Files to S3
+    a <- tryCatch(error = identity, expr = {
+      s3 <- paws::s3()
+      local_paths <- c(png_paths, symbology_paths, tiff_path)
+      bucket_paths <- c(png_bucket_paths, symbology_bucket_paths, tiff_bucket_path)
+      for (i in seq_along(local_paths)) {
+        s3$put_object(
+          Bucket = s3_bucket_name,
+          Key = bucket_paths[i],
+          Body = readBin(local_paths[i], "raw", file.info(local_paths[i])$size)
+        )
+      }
+    })
+    if (inherits(a, "error")) {
+      if (grepl("No compatible credentials provided.", a$message)) {
+        print(paste("Full error message:", a$message))
+        return(format_error("Failed to upload to S3. No compatible credentials provided"))
+      } else {
+        return(format_error("Failed to upload to S3"))
+      }
     }
   }
 
