@@ -72,6 +72,7 @@ if (FALSE) {
 #'    `legend`
 flow <- function(loc, week, taxa, n, direction = "forward", aws_s3_transfer = TRUE) {
 
+  # TODO: replace these lines?
   load(system.file("data", "species.rda", package = "BirdFlowAPI"))
   load(system.file("data", "flow_colors.rda", package = "BirdFlowAPI"))
 
