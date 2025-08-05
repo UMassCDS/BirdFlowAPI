@@ -17,9 +17,10 @@ d <- sf::st_read(f)
 # Add centroids and drop polygons
 centroids <- sf::st_centroid(d)
 area_m2 <- as.numeric(sf::st_area(d))
+jitter_radius <- 0.5 * sqrt(area_m2 / base::pi)                 # 0.5 x (radius of circle with county area)
 coords <- sf::st_coordinates(centroids)
 colnames(coords) <- c("lon", "lat")
-d <- cbind(sf::st_drop_geometry(centroids), coords, area_m2)
+d <- cbind(sf::st_drop_geometry(centroids), coords, area_m2, jitter_radius)
 
 # Create table to crosswalk state codes to state names
 fips_text <-
@@ -91,7 +92,7 @@ counties <- dplyr::left_join(d, states, by = dplyr::join_by(statefp))|>
     dplyr::rename(county = name)
 
 # Select columns
-counties <- dplyr::select(counties, "county", "state", "geoid", "lon", "lat", "area_m2")
+counties <- dplyr::select(counties, "county", "state", "geoid", "lon", "lat", "area_m2", "jitter_radius")
 
 counties <- counties[order(counties$geoid), ]
 rownames(counties) <- NULL
