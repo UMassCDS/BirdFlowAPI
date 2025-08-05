@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------------
 # Using JSON so that the taxa file is identical to that used by front end:
 #  avianfluapp/src/assets/taxa.json
-species <- jsonlite::read_json(file.path("data-raw", "taxa.json")) |> 
+species <- jsonlite::read_json(file.path("data-raw", "flow_data", "taxa.json")) |> 
    do.call(rbind, args = _) |> 
    as.data.frame()
 names(species) <- c("species", "label")
@@ -17,7 +17,7 @@ species <- species[!species$species == "total", ]
 #-------------------------------------------------------------------------------
 # File from  
 # https://github.com/birdflow-science/BirdFlowWork/tree/main/population/data/final
-pop <- read.csv(file.path("data-raw", "population.csv")) |>
+pop <- read.csv(file.path("data-raw", "flow_data", "population.csv")) |>
    dplyr::filter(species_code %in% species$species) |>
    dplyr::select(species = species_code, population = americas_pop)
 

@@ -9,7 +9,7 @@
 #
 # The csv file created by this R file is saved in the respository though.
 
-f <- "data-raw/US_County_Boundaries_20250805.geojson"
+f <- "data-raw/county_data/US_County_Boundaries_20250805.geojson"
 
 # Read polygons
 d <- sf::st_read(f)
