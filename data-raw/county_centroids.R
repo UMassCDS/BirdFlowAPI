@@ -9,7 +9,7 @@
 #
 # The csv file created by this R file is saved in the respository though.
 
-f <- "avian_influenza/counties/US_County_Boundaries_20241011.geojson"
+f <- "data-raw/US_County_Boundaries_20250805.geojson"
 
 # Read polygons
 d <- sf::st_read(f)
@@ -85,8 +85,6 @@ fips_text <- paste0(fips_text, "\n72\tPUERTO RICO")
 states <- readr::read_tsv(fips_text)
 stopifnot(all(d$statefp %in% states$statefp))
 
-
-
 # Add state names to counties
 counties <- dplyr::left_join(d, states) |> dplyr::rename(county = name)
 
@@ -94,13 +92,11 @@ counties <- dplyr::left_join(d, states) |> dplyr::rename(county = name)
 counties <- dplyr::select(counties, "county", "state",
                           "geoid", "lon", "lat")
 
-
 counties <- counties[order(counties$geoid), ]
 rownames(counties) <- NULL
 
-readr::write_csv(counties, "avian_influenza/counties/counties.csv")
-
-
-# Write JSON (it is ignored by .gitignore so won't be in repository)
-js <- jsonlite::toJSON(counties, pretty = TRUE)
-writeLines(js, "avian_influenza/counties/counties.json")
+# Save processed data as .rda object
+counties_csv <- counties
+counties_json <- jsonlite::toJSON(counties, pretty = TRUE)
+usethis::use_data(counties_csv, overwrite = TRUE)
+usethis::use_data(counties_json, overwrite = TRUE)
