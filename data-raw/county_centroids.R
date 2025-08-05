@@ -16,9 +16,10 @@ d <- sf::st_read(f)
 
 # Add centroids and drop polygons
 centroids <- sf::st_centroid(d)
+area_m2 <- as.numeric(sf::st_area(d))
 coords <- sf::st_coordinates(centroids)
 colnames(coords) <- c("lon", "lat")
-d <- cbind(sf::st_drop_geometry(centroids), coords)
+d <- cbind(sf::st_drop_geometry(centroids), coords, area_m2)
 
 # Create table to crosswalk state codes to state names
 fips_text <-
@@ -82,15 +83,15 @@ fips_text <- paste0("statefp\tstate\n", fips_text)
 
 # Add Puerto Rico
 fips_text <- paste0(fips_text, "\n72\tPUERTO RICO")
-states <- readr::read_tsv(fips_text)
+states <- readr::read_tsv(fips_text, show_col_types = F)
 stopifnot(all(d$statefp %in% states$statefp))
 
 # Add state names to counties
-counties <- dplyr::left_join(d, states) |> dplyr::rename(county = name)
+counties <- dplyr::left_join(d, states, by = dplyr::join_by(statefp))|>
+    dplyr::rename(county = name)
 
 # Select columns
-counties <- dplyr::select(counties, "county", "state",
-                          "geoid", "lon", "lat")
+counties <- dplyr::select(counties, "county", "state", "geoid", "lon", "lat", "area_m2")
 
 counties <- counties[order(counties$geoid), ]
 rownames(counties) <- NULL
