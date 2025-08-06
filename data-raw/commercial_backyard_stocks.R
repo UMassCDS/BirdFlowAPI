@@ -20,5 +20,5 @@ data <- tidyr::pivot_longer(data, cols = tidyr::all_of(date_cols), values_drop_n
     dplyr::mutate(GeoLoc = purrr::map2(lat, lon, ~ c(.x, .y))) |>
     dplyr::select("Confirmed", "State", "County Name", "Production", "EndDate", "NumInfected", "GeoLoc")
 
-json_data <- jsonlite::toJSON(data, pretty = T)
-usethis::use_data(json_data, overwrite = TRUE)
+commercial_backyard_stocks <- jsonlite::toJSON(data, pretty = T)
+usethis::use_data(commercial_backyard_stocks, overwrite = TRUE)
