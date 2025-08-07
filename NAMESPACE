@@ -3,3 +3,4 @@
 export(range_rescale)
 export(save_json_palette)
 export(symbolize_raster_data)
+import(BirdFlowR)
