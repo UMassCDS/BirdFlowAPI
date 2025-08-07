@@ -10,7 +10,6 @@
 #'   \item{population}{Estimated population size.}
 #' }
 #' @source <https://github.com/UMassCDS/avian-influenza-api-backend>
-"species"
 
 #' Flow colors
 #' 
@@ -24,4 +23,3 @@
 #'   \item{blue}{Blue channel intensity (0–255)}
 #' }
 #' @source <https://github.com/UMassCDS/avian-influenza-api-backend>
-"flow_colors"
