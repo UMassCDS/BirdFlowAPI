@@ -178,7 +178,7 @@ flow <- function(loc, week, taxa, n, direction = "forward") {
     }
 
     log_progress(paste("Starting prediction for species:", sp, "week:", week))
-    pred <- BirdFlowR::predict(bf,
+    pred <- predict(bf,
       start_distr,
       start = week,
       n = n,
