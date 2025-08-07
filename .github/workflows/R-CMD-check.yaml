@@ -39,13 +39,6 @@ jobs:
       # Extra step to install remotes
       - name: Install remotes
         run: Rscript -e 'install.packages("remotes")'
-
-      # Extra steps to install BirdFlowR and callthat packages from GitHub
-      - name: Install BirdFlowR from GitHub
-        run: Rscript -e 'remotes::install_github("birdflow-science/BirdFlowR")'
-
-      - name: Install callthat from GitHub
-        run: Rscript -e 'remotes::install_github("edgararuiz/callthat")'
       
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
