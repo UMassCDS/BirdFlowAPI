@@ -1,3 +1,5 @@
+#' @import BirdFlowR
+
 if (FALSE) {
   # Manually set function arguments for dev and debugging
   # Running code here allows running function body code outside of the
@@ -129,7 +131,7 @@ flow <- function(loc, week, taxa, n, direction = "forward") {
   # Set unique ID and output directory for this API call
   unique_id <- Sys.time() |>
     format(format = "%Y-%m-%d_%H-%M-%S") |>
-    paste0("_", round(runif(1, 0, 1000)))
+    paste0("_", round(stats::runif(1, 0, 1000)))
 
 
   out_path <- file.path(local_cache, unique_id) # for this API call
@@ -156,18 +158,18 @@ flow <- function(loc, week, taxa, n, direction = "forward") {
     bf <- models[[sp]]
 
     # Initial distribution
-    xy <- latlon_to_xy(lat_lon$lat, lat_lon[, 2], bf = bf)
+    xy <- BirdFlowR::latlon_to_xy(lat_lon$lat, lat_lon[, 2], bf = bf)
 
 
     # Check for valid starting location(s)
     # skip species without
-    valid <- is_location_valid(bf, timestep = week, x = xy$x, y = xy$y)
+    valid <- BirdFlowR::is_location_valid(bf, timestep = week, x = xy$x, y = xy$y)
     if (!all(valid)) {
       skipped[i] <- TRUE
       next
     }
 
-    start_distr <- as_distr(xy, bf, )
+    start_distr <- BirdFlowR::as_distr(xy, bf, )
     if (nrow(lat_lon) > 1) {
       # If multiple xy  start distribution will contain multiple
       # one-hot distributions in a matrix
@@ -176,7 +178,7 @@ flow <- function(loc, week, taxa, n, direction = "forward") {
     }
 
     log_progress(paste("Starting prediction for species:", sp, "week:", week))
-    pred <- predict(bf,
+    pred <- BirdFlowR::predict(bf,
       start_distr,
       start = week,
       n = n,
@@ -184,15 +186,15 @@ flow <- function(loc, week, taxa, n, direction = "forward") {
     )
 
     # Proportion of population in starting location
-    location_i <- xy_to_i(xy, bf = bf)
-    initial_population_distr <- get_distr(bf, which = week)
+    location_i <- BirdFlowR::xy_to_i(xy, bf = bf)
+    initial_population_distr <- BirdFlowR::get_distr(bf, which = week)
     start_proportion <- initial_population_distr[location_i] / 1
 
     # Convert to Birds / sq km
     abundance <- pred * species$population[species$species == sp] /
-      prod(res(bf) / 1000) * start_proportion
+      prod(terra::res(bf) / 1000) * start_proportion
 
-    r <- rasterize_distr(abundance, bf = bf, format = "terra")
+    r <- BirdFlowR::rasterize_distr(abundance, bf = bf, format = "terra")
 
     rasters[[i]] <- r
   }
@@ -233,7 +235,7 @@ flow <- function(loc, week, taxa, n, direction = "forward") {
 
   # Set paths
 
-  pred_weeks <- lookup_timestep_sequence(bf, start = week, n = n, direction = direction)
+  pred_weeks <- BirdFlowR::lookup_timestep_sequence(bf, start = week, n = n, direction = direction)
 
   # File names (no path)
   png_files <- paste0(flow_type, "_", taxa, "_", pred_weeks, ".png")
