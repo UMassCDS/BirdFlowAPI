@@ -5,14 +5,11 @@
 \alias{species}
 \title{Species populations and labels}
 \format{
-\subsection{\code{species}}{
-
 A data frame with 9 rows and 3 columns:
 \describe{
 \item{species}{Character code for the species.}
 \item{label}{Common name of the species.}
 \item{population}{Estimated population size.}
-}
 }
 }
 \source{

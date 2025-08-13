@@ -5,14 +5,11 @@
 \alias{flow_colors}
 \title{Flow colors}
 \format{
-\subsection{\code{flow_colors}}{
-
 An integer matrix with 256 rows and 3 columns:
 \describe{
 \item{red}{Red channel intensity (0–255)}
 \item{green}{Green channel intensity (0–255)}
 \item{blue}{Blue channel intensity (0–255)}
-}
 }
 }
 \source{
