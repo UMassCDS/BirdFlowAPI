@@ -24,4 +24,4 @@ Remotes:
     edgararuiz/callthat
 Depends: 
     R (>= 4.2.0)
-LazyData: true
+LazyData: false
