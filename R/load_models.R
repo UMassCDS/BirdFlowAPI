@@ -1,6 +1,6 @@
 load_models <- function() {
     # Load species.rda object from data/species.rda
-    load(system.file("data", "species.rda", package = "BirdFlowAPI"))
+    # load(system.file("data", "species.rda", package = "BirdFlowAPI"))
 
     # Load BirdFlow models
     BirdFlowR::birdflow_options(collection_url = "https://birdflow-science.s3.amazonaws.com/avian_flu/")
