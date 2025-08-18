@@ -21,6 +21,8 @@ Run a specific test file:
 testthat::test_file("tests/testthat/test-example.R")
 ```
 
+## R CMD Check
+
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/UMassCDS/BirdFlowAPI/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/UMassCDS/BirdFlowAPI/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
