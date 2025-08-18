@@ -72,7 +72,12 @@ if (FALSE) {
 #'    `week`
 #'    `url`
 #'    `legend`
-flow <- function(loc, week, taxa, n, direction = "forward") {
+flow <- function(loc, week, taxa, n, direction = "forward", aws_s3_transfer = TRUE) {
+
+  # TODO: replace these lines?
+  load(system.file("data", "species.rda", package = "BirdFlowAPI"))
+  load(system.file("data", "flow_colors.rda", package = "BirdFlowAPI"))
+
   format_error <- function(message, status = "error") {
     list(
       start = list(
@@ -266,24 +271,27 @@ flow <- function(loc, week, taxa, n, direction = "forward") {
     save_json_palette(symbology_paths[i], max = max_val, col_matrix = flow_colors)
   }
 
-  # Copy Files to S3
-  a <- tryCatch(error = identity, expr = {
-    s3 <- paws::s3()
-    local_paths <- c(png_paths, symbology_paths, tiff_path)
-    bucket_paths <- c(png_bucket_paths, symbology_bucket_paths, tiff_bucket_path)
-    for (i in seq_along(local_paths)) {
-      s3$put_object(
-        Bucket = s3_bucket_name,
-        Key = bucket_paths[i],
-        Body = readBin(local_paths[i], "raw", file.info(local_paths[i])$size)
-      )
-    }
-  })
-  if (inherits(a, "error")) {
-    if (grepl("No compatible credentials provided.", a$message)) {
-      return(format_error("Failed to upload to S3. No compatible credentials provided"))
-    } else {
-      return(format_error("Failed to upload to S3"))
+  if (aws_s3_transfer) {
+    # Copy Files to S3
+    a <- tryCatch(error = identity, expr = {
+      s3 <- paws::s3()
+      local_paths <- c(png_paths, symbology_paths, tiff_path)
+      bucket_paths <- c(png_bucket_paths, symbology_bucket_paths, tiff_bucket_path)
+      for (i in seq_along(local_paths)) {
+        s3$put_object(
+          Bucket = s3_bucket_name,
+          Key = bucket_paths[i],
+          Body = readBin(local_paths[i], "raw", file.info(local_paths[i])$size)
+        )
+      }
+    })
+    if (inherits(a, "error")) {
+      if (grepl("No compatible credentials provided.", a$message)) {
+        print(paste("Full error message:", a$message))
+        return(format_error("Failed to upload to S3. No compatible credentials provided"))
+      } else {
+        return(format_error("Failed to upload to S3"))
+      }
     }
   }
 
