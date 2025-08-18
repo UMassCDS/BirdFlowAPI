@@ -9,6 +9,18 @@ The development version of BirdFlowAPI can be installed from GitHub with:
 devtools::install_github("UMassCDS/BirdFlowAPI")
 ```
 
+## Testing
+
+Run the full test suite:
+```r
+devtools::test()
+```
+
+Run a specific test file:
+```r
+testthat::test_file("tests/testthat/test-example.R")
+```
+
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/UMassCDS/BirdFlowAPI/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/UMassCDS/BirdFlowAPI/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
