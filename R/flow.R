@@ -58,8 +58,8 @@ if (FALSE) {
 #' @param n The number of weeks to project forward (note output will include
 #' the initial week so will have n + 1 images)
 #' @param week The week number to start at.
-#' @param direction Which direction to project in "backward" for inflow or
-#' "forward" for outflow"
+#' @param direction Which direction to project in "backward" for inflow or "forward" for outflow"
+#' @param aws_s3_transfer True/False boolean flag - determines whether to copy files to AWS S3 bucket
 #' @returns A list with components:
 #'
 #' `start` a list with:
