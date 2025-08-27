@@ -12,8 +12,6 @@
 #'
 #' @return invisible()
 #' @export
-#'
-#' @examples
 symbolize_raster_data <- function(tiff = NULL,
                                   png,
                                   col_palette,
