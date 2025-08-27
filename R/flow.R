@@ -53,7 +53,35 @@ if (file.exists(save_local_path)) {
 #' 
 #' This function is the heart of the inflow and outflow api and does all 
 #' the work. It is wrapped by both of those endpoints
+#'
+#' @param taxa a taxa.  Should be either "total" (sum across all species) or
+#' one of the species listed in config/taxa.json
+#' @param loc One or more locations as a scalar character each location should
+#' be latitude and longitude separated by a comma, multiple locations are separated by
+#' a semicolon  e.g. "42,-72"   or "42,-72;43.4,-72.7"
+#' @param n The number of weeks to project forward (note output will include
+#' the initial week so will have n + 1 images)
+#' @param week The week number to start at.
+#' @param direction Which direction to project in "backward" for inflow or "forward" for outflow"
+#' @param save_local True/False boolean flag - determines whether to copy files to AWS S3 bucket
+#' @returns A list with components:
+#'
+#' `start` a list with:
+#'    `week`  as input
+#'    `taxa`, as input
+#'    `loc`,  as input
+#'    `type` - "inflow" or "outflow"
+#' `status` either: "success", "error", "outside mask"
+#' `result` a list of information about the images each item includes
+#'    `week`
+#'    `url`
+#'    `legend`
 flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LOCAL) {
+
+  # TODO: replace these lines?
+  load(system.file("data", "species.rda", package = "BirdFlowAPI"))
+  load(system.file("data", "flow_colors.rda", package = "BirdFlowAPI"))
+
   format_error <- function(message, status = "error") {
     list(
       start = list(week = week, taxa = taxa, loc = loc),

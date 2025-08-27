@@ -13,8 +13,6 @@
 #' the remaining colors. When set the remaining colors get compressed slightly.
 #' @return File is written, nothing is returned.
 #' @export
-#'
-#' @examples
 save_json_palette <- function(file, max, min = 0, n = 10, col_matrix, stretch_first = 2) {
   # Note the ebird palette zero is not in the same gradient as the rest of the
   # palette.
