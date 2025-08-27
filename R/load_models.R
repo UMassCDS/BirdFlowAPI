@@ -16,7 +16,7 @@
 #' @export
 load_models <- function() {
     # Load BirdFlow models
-    BirdFlowR::birdflow_options(collection_url = "https://birdflow-science.s3.amazonaws.com/avian_flu/")
+    BirdFlowR::birdflow_options(collection_url = "https://birdflow-science.s3.amazonaws.com/sparse_avian_flu/")
     index <- BirdFlowR::load_collection_index()
     if(!all(species$species %in% index$species_code)) {
         miss <- setdiff(species$species, index$species_code)

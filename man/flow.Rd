@@ -2,9 +2,9 @@
 % Please edit documentation in R/flow.R
 \name{flow}
 \alias{flow}
-\title{Implement inflow and outfow}
+\title{Implement inflow and outflow}
 \usage{
-flow(loc, week, taxa, n, direction = "forward", aws_s3_transfer = TRUE)
+flow(loc, week, taxa, n, direction = "forward", save_local = SAVE_LOCAL)
 }
 \arguments{
 \item{loc}{One or more locations as a scalar character each location should
@@ -21,7 +21,7 @@ the initial week so will have n + 1 images)}
 
 \item{direction}{Which direction to project in "backward" for inflow or "forward" for outflow"}
 
-\item{aws_s3_transfer}{True/False boolean flag - determines whether to copy files to AWS S3 bucket}
+\item{save_local}{True/False boolean flag - determines whether to copy files to AWS S3 bucket}
 }
 \value{
 A list with components:
