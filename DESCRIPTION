@@ -1,9 +1,9 @@
 Package: BirdFlowAPI
-Title: What the Package Does (One Line, Title Case)
+Title: API for Avian Influenza Application
 Version: 0.0.0.9000
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: BirdFlowAPI contains the primary backend code and API interface for the Avian Influenza application. It includes code to load BirdFlow models, functions for API endpoints, source (BirdFlowR) and destination (AWS S3 bucket) parameters, and tests.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -23,5 +23,5 @@ Remotes:
     birdflow-science/BirdFlowR,
     edgararuiz/callthat
 Depends: 
-    R (>= 3.5)
+    R (>= 4.2.0)
 LazyData: false

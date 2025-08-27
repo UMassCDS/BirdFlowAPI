@@ -4,7 +4,7 @@
 \alias{flow}
 \title{Implement inflow and outfow}
 \usage{
-flow(loc, week, taxa, n, direction = "forward")
+flow(loc, week, taxa, n, direction = "forward", aws_s3_transfer = TRUE)
 }
 \arguments{
 \item{loc}{One or more locations as a scalar character each location should
@@ -19,8 +19,9 @@ one of the species listed in config/taxa.json}
 \item{n}{The number of weeks to project forward (note output will include
 the initial week so will have n + 1 images)}
 
-\item{direction}{Which direction to project in "backward" for inflow or
-"forward" for outflow"}
+\item{direction}{Which direction to project in "backward" for inflow or "forward" for outflow"}
+
+\item{aws_s3_transfer}{True/False boolean flag - determines whether to copy files to AWS S3 bucket}
 }
 \value{
 A list with components:

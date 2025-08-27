@@ -13,8 +13,6 @@
 #' the remaining colors. When set the remaining colors get compressed slightly.
 #' @return File is written, nothing is returned.
 #' @export
-#'
-#' @examples
 save_json_palette <- function(file, max, min = 0, n = 10, col_matrix, stretch_first = 2) {
   # Note the ebird palette zero is not in the same gradient as the rest of the
   # palette.
@@ -34,7 +32,7 @@ save_json_palette <- function(file, max, min = 0, n = 10, col_matrix, stretch_fi
   }
 
 
-  cols <- apply(col_matrix, 1, function(x) rgb(x[1], x[2], x[3], maxColorValue = 255))
+  cols <- apply(col_matrix, 1, function(x) grDevices::rgb(x[1], x[2], x[3], maxColorValue = 255))
   # Full 256
   # cols <- ebirdst::ebirdst_palettes(n = 256, type = "weekly")
   pal <- data.frame(

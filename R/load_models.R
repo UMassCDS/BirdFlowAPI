@@ -1,6 +1,22 @@
+#' Load BirdFlow Models
+#'
+#' Loads and caches BirdFlow models for all species listed in the `species` object.
+#' Models are retrieved from the avian flu BirdFlow model collection hosted on S3.
+#' If the models are already loaded in the global `models` environment, they are not reloaded.
+#'
+#' @return
+#' Invisibly returns `NULL`. The loaded models are stored in a global environment called `models`.
+#'
+#' @examples
+#' \dontrun{
+#'   load_models()
+#'   ls(models)  # list the loaded species models
+#' }
+#'
+#' @export
 load_models <- function() {
     # Load species.rda object from data/species.rda
-    load(system.file("data", "species.rda", package = "BirdFlowAPI"))
+    # load(system.file("data", "species.rda", package = "BirdFlowAPI"))
 
     # Load BirdFlow models
     BirdFlowR::birdflow_options(collection_url = "https://birdflow-science.s3.amazonaws.com/avian_flu/")
