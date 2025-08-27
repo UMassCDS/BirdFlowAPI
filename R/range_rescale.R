@@ -10,8 +10,6 @@
 #'
 #' @return x rescaled.
 #' @export
-#'
-#' @examples
 range_rescale <- function(x, min_value = NULL, max_value = NULL) {
   if (is.null(min_value)) {
     min_value <- min(x, na.rm = TRUE)
