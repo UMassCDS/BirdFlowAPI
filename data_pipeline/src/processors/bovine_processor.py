@@ -29,7 +29,5 @@ data["Confirmed"] = data.apply(
 )
 
 data = data[["Confirmed", "State", "County Name", "Production", "EndDate", "NumInfected", "GeoLoc"]]
-bovine_save_path = os.path.join("data_pipeline", "data", "processed_data", "bovine.json")
+bovine_save_path = os.path.join("data_pipeline", "data", "processed_data", "jittered_bovine.json")
 data.to_json(path_or_buf=bovine_save_path, orient="records", indent=4)
-
-print(data.head())
