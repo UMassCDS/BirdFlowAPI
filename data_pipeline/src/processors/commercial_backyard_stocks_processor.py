@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 from ..utils.jitter_function import add_random_jitter
+from ..utils.format_date import format_date
 
 counties_path = os.path.join("data_pipeline", "data", "original_data", "counties.csv")
 counties = pd.read_csv(counties_path)
@@ -26,11 +27,12 @@ data["GeoLoc"] = data.apply(
     axis=1
 )
 
+# Convert date to appropriate format
+data["Confirmed"] = data.apply(
+    func=lambda row: format_date(row["Confirmed"], "%d-%b-%y"),
+    axis=1
+)
+
 data = data[["Confirmed", "State", "County Name", "Production", "EndDate", "NumInfected", "GeoLoc"]]
-cbs_save_path = os.path.join("data_pipeline", "data", "processed_data", "jittered_commercial_backyard_stocks.json")
+cbs_save_path = os.path.join("data_pipeline", "data", "processed_data", "jittered_commercial_backyard_stocks.json") # TODO: rename file
 data.to_json(path_or_buf=cbs_save_path, orient="records", indent=4)
-
-# print(data.head())
-# print(data.columns)
-# print(data.shape)
-
