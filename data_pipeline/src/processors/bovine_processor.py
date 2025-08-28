@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 from ..utils.jitter_function import add_random_jitter
+from ..utils.format_date import format_date
 
 states_csv_path = os.path.join("data_pipeline", "data", "original_data", "states.csv")
 states = pd.read_csv(states_csv_path).drop(["index"], axis=1)
@@ -21,12 +22,11 @@ data["GeoLoc"] = data.apply(
     axis=1
 )
 
-# TEMPORARY CODE - JUST FOR DEMO
-csv_data = data.copy()
-csv_data["jitter_lat"] = csv_data["GeoLoc"].apply(lambda x: x[0])
-csv_data["jitter_lon"] = csv_data["GeoLoc"].apply(lambda x: x[1])
-csv_data = csv_data[["lon", "lat", "jitter_radius", "jitter_lat", "jitter_lon"]]
-csv_data.to_csv("jittered_points.csv")
+# Convert date to appropriate format
+data["Confirmed"] = data.apply(
+    func=lambda row: format_date(row["Confirmed"], "%d-%b-%y"),
+    axis=1
+)
 
 data = data[["Confirmed", "State", "County Name", "Production", "EndDate", "NumInfected", "GeoLoc"]]
 bovine_save_path = os.path.join("data_pipeline", "data", "processed_data", "bovine.json")
