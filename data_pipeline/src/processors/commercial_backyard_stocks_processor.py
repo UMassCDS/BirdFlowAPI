@@ -15,7 +15,7 @@ data = pd.read_csv(cbs_data_path, delimiter="\t", encoding="utf-16", skiprows=1)
 data = pd.melt(
     data,
     id_vars=["Confirmed", "State", "County Name", "Special Id", "Production"],
-    var_name="EndDate",             # TODO: Is "Controlled Area Released Date" == "EndDate"?
+    var_name="EndDate",
     value_name="NumInfected",
     ignore_index=True
 ).dropna().reset_index(drop=True)
@@ -34,5 +34,5 @@ data["Confirmed"] = data.apply(
 )
 
 data = data[["Confirmed", "State", "County Name", "Production", "EndDate", "NumInfected", "GeoLoc"]]
-cbs_save_path = os.path.join("data_pipeline", "data", "processed_data", "jittered_commercial_backyard_stocks.json") # TODO: rename file
+cbs_save_path = os.path.join("data_pipeline", "data", "processed_data", "jittered_commercial_backyard_stocks.json")
 data.to_json(path_or_buf=cbs_save_path, orient="records", indent=4)
