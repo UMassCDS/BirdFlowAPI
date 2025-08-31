@@ -281,8 +281,12 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
     log_progress("ERROR: ai_app_extent is NULL. Aborting.")
     return(format_error("ai_app_extent is NULL"))
   }
-  web_raster <- combined |> terra::project(ai_app_crs$input) |> terra::crop(ai_app_extent)
 
+  log_progress("Projecting")
+  web_raster <- combined |> terra::project(ai_app_crs$input)
+  log_progress("Cropping")
+  web_raster <- terra::crop(web_raster, ai_app_extent)
+  log_progress("Done cropping")
   png_paths <- file.path(out_path, png_files)
   symbology_paths <- file.path(out_path, symbology_files)
   for (i in seq_along(pred_weeks)) {
