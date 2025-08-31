@@ -4,12 +4,12 @@ if(FALSE) {
    # Manually set function arguments for dev and debugging
    # Running code here allows running function body code outside of the
    # function definition (line by line)
-   
-   
+
+
    ## Setup - duplicates loading done in entrypoint.R
-   # Change the working directory to "api" before sourcing so relative paths in 
+   # Change the working directory to "api" before sourcing so relative paths in
    # the other files are correct
-   
+
 
    # Load required libraries
    library(BirdFlowR)
@@ -28,14 +28,14 @@ if(FALSE) {
    source("utils/range_rescale.R")
    setwd(original_wd)
 
-   # Set example arguments values as R objects 
+   # Set example arguments values as R objects
    taxa <- "mallar3"
    taxa <- "total"  # all taxa
    week = 15
    date <- "2022-01-01"
    lat <- 42
    lon <- -70
-   loc <- 
+   loc <-
    direction <- "forward"
    n <- 10 # prob 20 when deployed
    loc <- "1,2;3,4;12.12,-13.13" # test multi-point
@@ -50,8 +50,8 @@ if (file.exists(save_local_path)) {
 }
 
 #' Implement inflow and outflow
-#' 
-#' This function is the heart of the inflow and outflow api and does all 
+#'
+#' This function is the heart of the inflow and outflow api and does all
 #' the work. It is wrapped by both of those endpoints
 #'
 #' @param taxa a taxa.  Should be either "total" (sum across all species) or
@@ -216,7 +216,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
     pred <- predict(bf, start_distr, start = week, n = n, direction = direction)
     location_i <- xy_to_i(xy, bf = bf)
     initial_population_distr <- get_distr(bf, which = week)
-    start_proportion <- initial_population_distr[location_i] / 1
+    start_proportion <- sum(initial_population_distr[location_i]) / 1
     abundance <- pred * species$population[species$species == sp] / prod(res(bf) / 1000) * start_proportion
     this_raster <- rasterize_distr(abundance, bf = bf, format = "terra")
     if (is.null(combined)) {
