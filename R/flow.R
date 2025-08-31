@@ -1,3 +1,27 @@
+#' Set S3 configuration explicitly
+#'
+#' Allows user to set S3 credentials and bucket at runtime. If not set, environment variables or IAM role will be used.
+set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, bucket = NULL) {
+  assign(".s3_config", list(
+    access_key = access_key,
+    secret_key = secret_key,
+    region = region,
+    bucket = bucket
+  ), envir = .GlobalEnv)
+}
+
+#' Get S3 configuration from explicit config, environment variables, or IAM role
+get_s3_config <- function() {
+  config <- if (exists(".s3_config", envir = .GlobalEnv)) get(".s3_config", envir = .GlobalEnv) else list()
+  access_key <- config$access_key %||% Sys.getenv("AWS_ACCESS_KEY_ID", unset = NA)
+  secret_key <- config$secret_key %||% Sys.getenv("AWS_SECRET_ACCESS_KEY", unset = NA)
+  region     <- config$region     %||% Sys.getenv("AWS_DEFAULT_REGION", unset = NA)
+  bucket     <- config$bucket     %||% Sys.getenv("S3_BUCKET_NAME", unset = NA)
+  list(access_key = access_key, secret_key = secret_key, region = region, bucket = bucket)
+}
+
+#' Null coalescing operator for config values
+`%||%` <- function(a, b) if (!is.null(a) && !is.na(a) && nzchar(a)) a else b
 #' @import BirdFlowR
 
 if(FALSE) {
@@ -43,11 +67,7 @@ if(FALSE) {
 }
 
 save_local_path <- "config/save_local.flag"
-if (file.exists(save_local_path)) {
-  SAVE_LOCAL <- as.logical(readLines(save_local_path, warn = FALSE)[1])
-} else {
-  SAVE_LOCAL <- FALSE
-}
+
 
 #' Implement inflow and outflow
 #' 
@@ -63,7 +83,7 @@ if (file.exists(save_local_path)) {
 #' the initial week so will have n + 1 images)
 #' @param week The week number to start at.
 #' @param direction Which direction to project in "backward" for inflow or "forward" for outflow"
-#' @param save_local True/False boolean flag - determines whether to copy files to AWS S3 bucket
+#' @param save_local True/False boolean flag - determines whether to save results locally (default: value in config/save_local.flag, or FALSE if not present). If FALSE, results are uploaded to S3 if configured.
 #' @returns A list with components:
 #'
 #' `start` a list with:
@@ -76,9 +96,14 @@ if (file.exists(save_local_path)) {
 #'    `week`
 #'    `url`
 #'    `legend`
-flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LOCAL) {
+#'    `type`
+#' @export
+flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) {
+  s3_cfg <- get_s3_config()
+  s3_enabled <- !is.na(s3_cfg$bucket) && nzchar(s3_cfg$bucket)
 
   format_error <- function(message, status = "error") {
+    log_progress(paste("ERROR:", message))
     list(
       start = list(week = week, taxa = taxa, loc = loc),
       status = status,
@@ -90,7 +115,8 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
     cat(sprintf("[%s] %s\n", Sys.time(), msg), file = "./flow_debug.log", append = TRUE)
   }
 
-  log_progress("Starting flow function")
+  log_progress(paste0("Starting flow function with arguments: loc=", loc, ", week=", week, ", taxa=", taxa, ", n=", n, ", direction=", direction, ", save_local=", save_local))
+  log_progress(paste0("S3 enabled: ", s3_enabled, ", S3 config: ", paste(names(s3_cfg), s3_cfg, sep="=", collapse=", ")))
 
   # Convert location to lat/lon dataframe
   lat_lon <- strsplit(loc, ";") |>
@@ -105,6 +131,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
   if (!week %in% as.character(1:52)) return(format_error("invalid week"))
   if (!n %in% as.character(1:52)) return(format_error("invalid n"))
   if (!direction %in% c("forward", "backward")) return(format_error("invalid direction"))
+  log_progress("Input validation passed.")
 
   week <- as.numeric(week)
   n <- as.numeric(n)
@@ -140,16 +167,16 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
 
   # --- CACHE CHECK BLOCK ---
   cache_hit <- TRUE
-  if (!save_local) {
+  if (!save_local && s3_enabled) {
     for (i in seq_along(pred_weeks)) {
-      png_exists <- object_exists(object = png_bucket_paths[i], bucket = s3_bucket_name)
-      json_exists <- object_exists(object = symbology_bucket_paths[i], bucket = s3_bucket_name)
+      png_exists <- object_exists(object = png_bucket_paths[i], bucket = s3_cfg$bucket)
+      json_exists <- object_exists(object = symbology_bucket_paths[i], bucket = s3_cfg$bucket)
       if (!png_exists || !json_exists) {
         cache_hit <- FALSE
         break
       }
     }
-    tiff_exists <- object_exists(object = tiff_bucket_path, bucket = s3_bucket_name)
+    tiff_exists <- object_exists(object = tiff_bucket_path, bucket = s3_cfg$bucket)
     if (!tiff_exists) cache_hit <- FALSE
   } else {
     # Local cache: check if all files exist in localtmp
@@ -162,6 +189,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
   }
 
   if (cache_hit) {
+    log_progress(paste0("Cache hit for prefix: ", cache_prefix, ". Returning cached results."))
     result <- vector("list", length = n + 1)
     for (i in seq_along(pred_weeks)) {
       result[[i]] <- list(
@@ -170,6 +198,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
         legend = if (save_local) json_local_paths[i] else symbology_urls[i],
         type = flow_type
       )
+      log_progress(paste0("Cached result for week ", pred_weeks[i], ": url=", result[[i]]$url, ", legend=", result[[i]]$legend))
     }
     log_progress(if (save_local) "Returned cached result from localtmp" else "Returned cached result from S3")
     return(
@@ -184,7 +213,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
   # --- END CACHE CHECK BLOCK ---
 
   # Continue with prediction
-  if (save_local) {
+  if (save_local || !s3_enabled) {
     dir.create("localtmp", showWarnings = FALSE)
     out_path <- file.path("localtmp", gsub("/", "_", cache_prefix))
     dir.create(out_path, recursive = TRUE, showWarnings = FALSE)
@@ -226,12 +255,32 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
     }
   }
 
-  if (!any_valid) return(format_error("Invalid starting location", "outside mask"))
+  if (!any_valid) {
+    log_progress("No valid starting location. Returning error.")
+    return(format_error("Invalid starting location", "outside mask"))
+  }
 
   log_progress("Before writing TIFF")
   tiff_path <- file.path(out_path, paste0(flow_type, "_", taxa, ".tif"))
+  log_progress(paste0("Writing TIFF to: ", tiff_path))
   terra::writeRaster(combined, tiff_path, overwrite = TRUE, filetype = 'GTiff')
 
+  log_progress("Projecting and cropping raster for web output.")
+  log_progress(paste0("combined class: ", class(combined)))
+  log_progress(paste0("ai_app_crs$input: ", ai_app_crs$input))
+  log_progress(paste0("ai_app_extent: ", ai_app_extent))
+  if (is.null(combined) || !inherits(combined, "SpatRaster")) {
+    log_progress("ERROR: combined raster is NULL or not a SpatRaster. Aborting.")
+    return(format_error("combined raster is NULL or not a SpatRaster"))
+  }
+  if (is.null(ai_app_crs$input)) {
+    log_progress("ERROR: ai_app_crs$input is NULL. Aborting.")
+    return(format_error("ai_app_crs$input is NULL"))
+  }
+  if (is.null(ai_app_extent)) {
+    log_progress("ERROR: ai_app_extent is NULL. Aborting.")
+    return(format_error("ai_app_extent is NULL"))
+  }
   web_raster <- combined |> terra::project(ai_app_crs$input) |> terra::crop(ai_app_extent)
 
   png_paths <- file.path(out_path, png_files)
@@ -239,19 +288,22 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
   for (i in seq_along(pred_weeks)) {
     week_raster <- web_raster[[i]]
     max_val <- terra::minmax(week_raster)[2]
+    log_progress(paste0("Symbolizing raster data for week ", pred_weeks[i], ", max value: ", max_val))
     symbolize_raster_data(png = png_paths[i], col_palette = flow_colors,
                           rast = week_raster, max_value = max_val)
     save_json_palette(symbology_paths[i], max = max_val, col_matrix = flow_colors)
+    log_progress(paste0("Saved PNG: ", png_paths[i], ", JSON: ", symbology_paths[i]))
   }
 
   # --- UPLOAD OR LOCAL SAVE ---
-  if (!save_local) {
+  if (!save_local && s3_enabled) {
     log_progress(paste("Uploading TIFF to S3:", tiff_path, "->", tiff_bucket_path))
     tryCatch({
-      put_object(
+      aws.s3::put_object(
         file = tiff_path,
         object = tiff_bucket_path,
-        bucket = s3_bucket_name
+        bucket = s3_cfg$bucket,
+        region = s3_cfg$region
       )
       log_progress("TIFF upload successful.")
     }, error = function(e) {
@@ -262,10 +314,11 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
     for (i in seq_along(pred_weeks)) {
       log_progress(paste("Uploading PNG to S3:", png_paths[i], "->", png_bucket_paths[i]))
       tryCatch({
-        put_object(
+        aws.s3::put_object(
           file = png_paths[i],
           object = png_bucket_paths[i],
-          bucket = s3_bucket_name
+          bucket = s3_cfg$bucket,
+          region = s3_cfg$region
         )
         log_progress(paste("PNG upload successful:", png_bucket_paths[i]))
       }, error = function(e) {
@@ -275,10 +328,11 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
 
       log_progress(paste("Uploading JSON to S3:", symbology_paths[i], "->", symbology_bucket_paths[i]))
       tryCatch({
-        put_object(
+        aws.s3::put_object(
           file = symbology_paths[i],
           object = symbology_bucket_paths[i],
-          bucket = s3_bucket_name
+          bucket = s3_cfg$bucket,
+          region = s3_cfg$region
         )
         log_progress(paste("JSON upload successful:", symbology_bucket_paths[i]))
       }, error = function(e) {
@@ -286,8 +340,10 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
       })
       file.remove(symbology_paths[i])
     }
+    log_progress(paste0("All files uploaded to S3 and local files removed. Output path: ", out_path))
     unlink(out_path, recursive = TRUE)
   } else {
+    log_progress(paste0("Files saved locally in: ", out_path))
     message("Files saved locally in: ", out_path)
     # Optionally, you can keep the files for inspection
   }
@@ -307,7 +363,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LO
     )
   }
 
-  log_progress("Flow function complete")
+  log_progress("Flow function complete. Returning result.")
   return(
     list(
       start = list(week = week, taxa = taxa, loc = loc),
