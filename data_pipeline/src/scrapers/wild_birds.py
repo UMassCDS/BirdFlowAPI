@@ -2,11 +2,30 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 import time
+import os
+
+# Set custom directory to put downloaded files
+download_dir = os.path.abspath("data/scraped_data")
+os.makedirs(download_dir, exist_ok=True)
+
+chrome_options = Options()
+prefs = {
+    "download.default_directory": download_dir,
+    "download.prompt_for_download": False,
+    "download.directory_upgrade": True,
+    "safebrowsing.enabled": True
+}
+chrome_options.add_experimental_option("prefs", prefs)
+
+# TODO: REPLACE WITH ACTUAL CHROMEDRIVER PATH IN CONTAINER
+service = Service(r"C:\Users\athar\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe")
 
 url = "https://www.aphis.usda.gov/livestock-poultry-disease/avian/avian-influenza/hpai-detections/wild-birds"
 
-driver = webdriver.Chrome()
+driver = webdriver.Chrome(service=service, options=chrome_options)
 driver.get(url)
 
 # Click "CSV" button
