@@ -4,12 +4,14 @@
 ORIGINAL_FILES=(
     "data/scraped_data/HPAI Detections in Wild Birds.csv"
     "data/scraped_data/A Table by Confirmation Date.csv"
+    "data/scraped_data/Table Details by Date.csv"
 )
 
 # Array of new file names (not full paths)
 NEW_FILES=(
     "wild_birds.csv"
     "commercial_backyard_stocks.csv"
+    "bovine.csv"
 )
 
 if [ "${#ORIGINAL_FILES[@]}" -ne "${#NEW_FILES[@]}" ]; then
