@@ -3,25 +3,25 @@
 # Run CBS scraper
 python src/scrapers/commercial_backyard_stocks.py
 if [ $? -eq 0 ]; then
-    echo "Commercial backyard stocks processor ran successfully."
+    echo "Commercial backyard stocks scraper ran successfully."
 else
-    echo "Commercial backyard stocks processor failed."
+    echo "Commercial backyard stocks scraper failed."
 fi
 
 # Run WB scraper
 python src/scrapers/wild_birds.py
 if [ $? -eq 0 ]; then
-    echo "Wild birds processor ran successfully."
+    echo "Wild birds scraper ran successfully."
 else
-    echo "Wild birds processor failed."
+    echo "Wild birds scraper failed."
 fi
 
 # Run bovine scraper
 python src/scrapers/bovine.py
 if [ $? -eq 0 ]; then
-    echo "Bovine processor ran successfully."
+    echo "Bovine scraper ran successfully."
 else
-    echo "Bovine processor failed."
+    echo "Bovine scraper failed."
 fi
 
 # Array of original file paths
