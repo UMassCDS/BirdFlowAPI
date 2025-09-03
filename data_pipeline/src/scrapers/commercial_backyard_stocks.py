@@ -19,6 +19,7 @@ prefs = {
     "safebrowsing.enabled": True
 }
 chrome_options.add_experimental_option("prefs", prefs)
+chrome_options.add_argument("--log-level=3")
 
 # TODO: REPLACE WITH ACTUAL CHROMEDRIVER PATH IN CONTAINER
 service = Service(r"C:\Users\athar\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe")
