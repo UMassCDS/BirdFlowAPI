@@ -3,11 +3,11 @@ import os
 from ..utils.jitter_function import add_random_jitter
 from ..utils.format_date import format_date
 
-states_csv_path = os.path.join("data_pipeline", "data", "original_data", "states.csv")
+states_csv_path = os.path.join("data", "original_data", "states.csv")
 states = pd.read_csv(states_csv_path).drop(["index"], axis=1)
 states = states.rename(columns={"state": "State"})
 
-bovine_data_path = os.path.join("data_pipeline", "data", "scraped_data", "bovine.csv")
+bovine_data_path = os.path.join("data", "scraped_data", "bovine.csv")
 data = pd.read_csv(bovine_data_path, delimiter="\t", encoding="utf-16")
 
 data = pd.merge(data, states, how="left", on="State")
@@ -29,5 +29,5 @@ data["Confirmed"] = data.apply(
 )
 
 data = data[["Confirmed", "State", "County Name", "Production", "EndDate", "NumInfected", "GeoLoc"]]
-bovine_save_path = os.path.join("data_pipeline", "data", "processed_data", "jittered_bovine.json")
+bovine_save_path = os.path.join("data", "processed_data", "jittered_bovine.json")
 data.to_json(path_or_buf=bovine_save_path, orient="records", indent=4)

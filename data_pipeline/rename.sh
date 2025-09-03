@@ -56,3 +56,11 @@ else
     echo "Commercial backyard stocks processor failed."
 fi
 
+# --- Run bovine processor ---
+python -m src.processors.bovine_processor
+
+if [ $? -eq 0 ]; then
+    echo "Bovine processor executed successfully."
+else
+    echo "Bovine processor failed."
+fi
