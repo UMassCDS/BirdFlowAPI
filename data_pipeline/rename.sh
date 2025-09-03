@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Run CBS scraper
+python src/scrapers/commercial_backyard_stocks.py
+if [ $? -eq 0 ]; then
+    echo "Commercial backyard stocks processor ran successfully."
+else
+    echo "Commercial backyard stocks processor failed."
+fi
+
 # Array of original file paths
 ORIGINAL_FILES=(
     "data/scraped_data/HPAI Detections in Wild Birds.csv"
