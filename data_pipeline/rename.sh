@@ -42,7 +42,17 @@ done
 python -m src.processors.wild_birds_processor
 
 if [ $? -eq 0 ]; then
-    echo "Python script executed successfully."
+    echo "Wild birds processor executed successfully."
 else
-    echo "Python script failed."
+    echo "Wild birds processor failed."
 fi
+
+# --- Run CBS processor ---
+python -m src.processors.commercial_backyard_stocks_processor
+
+if [ $? -eq 0 ]; then
+    echo "Commercial backyard stocks processor executed successfully."
+else
+    echo "Commercial backyard stocks processor failed."
+fi
+
