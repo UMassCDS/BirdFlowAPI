@@ -8,6 +8,14 @@ else
     echo "Commercial backyard stocks processor failed."
 fi
 
+# Run WB scraper
+python src/scrapers/wild_birds.py
+if [ $? -eq 0 ]; then
+    echo "Wild birds processor ran successfully."
+else
+    echo "Wild birds processor failed."
+fi
+
 # Array of original file paths
 ORIGINAL_FILES=(
     "data/scraped_data/HPAI Detections in Wild Birds.csv"
