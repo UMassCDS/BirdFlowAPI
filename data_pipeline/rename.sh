@@ -37,3 +37,12 @@ for i in "${!ORIGINAL_FILES[@]}"; do
         echo "Failed to rename '$ORIGINAL_FILE'"
     fi
 done
+
+# --- Run WB processor ---
+python -m src.processors.wild_birds_processor
+
+if [ $? -eq 0 ]; then
+    echo "Python script executed successfully."
+else
+    echo "Python script failed."
+fi
