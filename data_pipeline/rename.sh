@@ -16,6 +16,14 @@ else
     echo "Wild birds processor failed."
 fi
 
+# Run bovine scraper
+python src/scrapers/bovine.py
+if [ $? -eq 0 ]; then
+    echo "Bovine processor ran successfully."
+else
+    echo "Bovine processor failed."
+fi
+
 # Array of original file paths
 ORIGINAL_FILES=(
     "data/scraped_data/HPAI Detections in Wild Birds.csv"
