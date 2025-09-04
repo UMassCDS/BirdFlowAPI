@@ -18,9 +18,15 @@ The `data_pipeline` folder contains an automated data pipeline that scrapes data
 
    `dataenv/Scripts/Activate` on Windows (Powershell)
 
-4. Install [chromedriver](https://developer.chrome.com/docs/chromedriver/get-started)
-5. Set the `CHROMEDRIVER_PATH` variable in `src/constants/environment_constants.py` to the path of the `chromedriver.exe` file
-6. Run `chmod +x run_pipeline.sh` to make the `run_pipeline.sh` script executable
+4. Install dependencies:
+
+   `pip install -r requirements.txt`
+   
+5. Install [Chromedriver](https://developer.chrome.com/docs/chromedriver/get-started). The Chromedriver must be compatible with the current Chrome version.
+6. Set the `CHROMEDRIVER_PATH` variable in `src/constants/environment_constants.py` to the path of the `chromedriver.exe` file
+7. Run `chmod +x run_pipeline.sh` to make the `run_pipeline.sh` script executable
+
+
 
 
 
