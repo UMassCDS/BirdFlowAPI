@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from src.constants.environment_constants import CHROMEDRIVER_PATH
 import time
 import os
 
@@ -21,8 +22,7 @@ prefs = {
 chrome_options.add_experimental_option("prefs", prefs)
 chrome_options.add_argument("--log-level=3")
 
-# TODO: REPLACE WITH ACTUAL CHROMEDRIVER PATH IN CONTAINER
-service = Service(r"C:\Users\athar\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe")
+service = Service(CHROMEDRIVER_PATH)
 
 url = "https://www.aphis.usda.gov/livestock-poultry-disease/avian/avian-influenza/hpai-detections/wild-birds"
 
