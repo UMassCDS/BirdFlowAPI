@@ -26,7 +26,8 @@ The `data_pipeline` folder contains an automated data pipeline that scrapes data
 6. Set the `CHROMEDRIVER_PATH` variable in `src/constants/environment_constants.py` to the path of the `chromedriver.exe` file
 7. Run `chmod +x run_pipeline.sh` to make the `run_pipeline.sh` script executable
 
+## Run Pipeline
 
+1. Run `./run_pipeline.sh` to run the pipeline.
 
-
-
+This will generate 3 JSON files in `/data/processed_data/` for each data source. JSON files are overwritten by default. Currently, the jitter is re-calculated every time the pipeline is run.
