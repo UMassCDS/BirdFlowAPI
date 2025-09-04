@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run CBS scraper
-python src/scrapers/commercial_backyard_stocks.py
+python -m src.scrapers.commercial_backyard_stocks
 if [ $? -eq 0 ]; then
     echo "Commercial backyard stocks scraper ran successfully."
 else
@@ -9,7 +9,7 @@ else
 fi
 
 # Run WB scraper
-python src/scrapers/wild_birds.py
+python -m src.scrapers.wild_birds
 if [ $? -eq 0 ]; then
     echo "Wild birds scraper ran successfully."
 else
@@ -17,7 +17,7 @@ else
 fi
 
 # Run bovine scraper
-python src/scrapers/bovine.py
+python -m src.scrapers.bovine
 if [ $? -eq 0 ]; then
     echo "Bovine scraper ran successfully."
 else
