@@ -3,14 +3,14 @@ import os
 from ..utils.jitter_function import add_random_jitter
 from ..utils.format_date import format_date
 
-counties_path = os.path.join("data_pipeline", "data", "original_data", "counties.csv")
+counties_path = os.path.join("data", "original_data", "counties.csv")
 counties = pd.read_csv(counties_path)
 counties = counties.drop(labels=["Unnamed: 0"], axis=1)
 counties = counties.rename(columns={"county": "County Name", "state": "State"})
 counties["State"] = counties["State"].str.title()
 
 # CBS = commercial and backyard stocks
-cbs_data_path = os.path.join("data_pipeline", "data", "scraped_data", "commercial_backyard_stocks.csv")
+cbs_data_path = os.path.join("data", "scraped_data", "commercial_backyard_stocks.csv")
 data = pd.read_csv(cbs_data_path, delimiter="\t", encoding="utf-16", skiprows=1)
 data = pd.melt(
     data,
@@ -34,5 +34,5 @@ data["Confirmed"] = data.apply(
 )
 
 data = data[["Confirmed", "State", "County Name", "Production", "EndDate", "NumInfected", "GeoLoc"]]
-cbs_save_path = os.path.join("data_pipeline", "data", "processed_data", "jittered_commercial_backyard_stocks.json")
+cbs_save_path = os.path.join("data", "processed_data", "jittered_commercial_backyard_stocks.json")
 data.to_json(path_or_buf=cbs_save_path, orient="records", indent=4)
