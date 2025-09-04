@@ -76,6 +76,7 @@ if (file.exists(save_local_path)) {
 #'    `week`
 #'    `url`
 #'    `legend`
+#' @importFrom stats predict
 flow <- function(loc, week, taxa, n, direction = "forward", save_local = SAVE_LOCAL) {
 
   format_error <- function(message, status = "error") {
