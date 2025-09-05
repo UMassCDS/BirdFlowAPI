@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Run CBS scraper
+# Run poultry scraper
 python -m src.scrapers.poultry_scraper
 if [ $? -eq 0 ]; then
     echo "Poultry scraper ran successfully."
@@ -71,7 +71,7 @@ else
     echo "Wild birds processor failed."
 fi
 
-# --- Run CBS processor ---
+# --- Run poultry processor ---
 python -m src.processors.poultry_processor
 
 if [ $? -eq 0 ]; then
