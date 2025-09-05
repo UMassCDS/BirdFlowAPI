@@ -8,8 +8,8 @@ else
     echo "Poultry scraper failed."
 fi
 
-# Run WB scraper
-python -m src.scrapers.wild_birds
+# Run wild birds scraper
+python -m src.scrapers.wild_birds_scraper
 if [ $? -eq 0 ]; then
     echo "Wild birds scraper ran successfully."
 else
@@ -17,7 +17,7 @@ else
 fi
 
 # Run bovine scraper
-python -m src.scrapers.bovine
+python -m src.scrapers.bovine_scraper
 if [ $? -eq 0 ]; then
     echo "Bovine scraper ran successfully."
 else
@@ -62,15 +62,6 @@ for i in "${!ORIGINAL_FILES[@]}"; do
     fi
 done
 
-# --- Run WB processor ---
-python -m src.processors.wild_birds_processor
-
-if [ $? -eq 0 ]; then
-    echo "Wild birds processor executed successfully."
-else
-    echo "Wild birds processor failed."
-fi
-
 # --- Run poultry processor ---
 python -m src.processors.poultry_processor
 
@@ -78,6 +69,15 @@ if [ $? -eq 0 ]; then
     echo "Poultry processor executed successfully."
 else
     echo "Poultry processor failed."
+fi
+
+# --- Run wild birds processor ---
+python -m src.processors.wild_birds_processor
+
+if [ $? -eq 0 ]; then
+    echo "Wild birds processor executed successfully."
+else
+    echo "Wild birds processor failed."
 fi
 
 # --- Run bovine processor ---
