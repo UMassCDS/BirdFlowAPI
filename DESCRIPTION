@@ -12,7 +12,7 @@ Imports:
     BirdFlowR,
     plumber,
     jsonlite,
-    paws,
+    aws.s3,
     terra
 Suggests: 
     testthat (>= 3.0.0),
