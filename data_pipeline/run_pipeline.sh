@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Run CBS scraper
-python -m src.scrapers.commercial_backyard_stocks
+python -m src.scrapers.poultry_scraper
 if [ $? -eq 0 ]; then
-    echo "Commercial backyard stocks scraper ran successfully."
+    echo "Poultry scraper ran successfully."
 else
-    echo "Commercial backyard stocks scraper failed."
+    echo "Poultry scraper failed."
 fi
 
 # Run WB scraper
@@ -72,12 +72,12 @@ else
 fi
 
 # --- Run CBS processor ---
-python -m src.processors.commercial_backyard_stocks_processor
+python -m src.processors.poultry_processor
 
 if [ $? -eq 0 ]; then
-    echo "Commercial backyard stocks processor executed successfully."
+    echo "Poultry processor executed successfully."
 else
-    echo "Commercial backyard stocks processor failed."
+    echo "Poultry processor failed."
 fi
 
 # --- Run bovine processor ---
