@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# Run CBS scraper
-python -m src.scrapers.commercial_backyard_stocks
+# Run poultry scraper
+python -m src.scrapers.poultry_scraper
 if [ $? -eq 0 ]; then
-    echo "Commercial backyard stocks scraper ran successfully."
+    echo "Poultry scraper ran successfully."
 else
-    echo "Commercial backyard stocks scraper failed."
+    echo "Poultry scraper failed."
 fi
 
-# Run WB scraper
-python -m src.scrapers.wild_birds
+# Run wild birds scraper
+python -m src.scrapers.wild_birds_scraper
 if [ $? -eq 0 ]; then
     echo "Wild birds scraper ran successfully."
 else
@@ -17,7 +17,7 @@ else
 fi
 
 # Run bovine scraper
-python -m src.scrapers.bovine
+python -m src.scrapers.bovine_scraper
 if [ $? -eq 0 ]; then
     echo "Bovine scraper ran successfully."
 else
@@ -34,7 +34,7 @@ ORIGINAL_FILES=(
 # Array of new file names (not full paths)
 NEW_FILES=(
     "wild_birds.csv"
-    "commercial_backyard_stocks.csv"
+    "poultry.csv"
     "bovine.csv"
 )
 
@@ -62,22 +62,22 @@ for i in "${!ORIGINAL_FILES[@]}"; do
     fi
 done
 
-# --- Run WB processor ---
+# --- Run poultry processor ---
+python -m src.processors.poultry_processor
+
+if [ $? -eq 0 ]; then
+    echo "Poultry processor executed successfully."
+else
+    echo "Poultry processor failed."
+fi
+
+# --- Run wild birds processor ---
 python -m src.processors.wild_birds_processor
 
 if [ $? -eq 0 ]; then
     echo "Wild birds processor executed successfully."
 else
     echo "Wild birds processor failed."
-fi
-
-# --- Run CBS processor ---
-python -m src.processors.commercial_backyard_stocks_processor
-
-if [ $? -eq 0 ]; then
-    echo "Commercial backyard stocks processor executed successfully."
-else
-    echo "Commercial backyard stocks processor failed."
 fi
 
 # --- Run bovine processor ---

@@ -28,5 +28,5 @@ data["Confirmed"] = data.apply(
 )
 
 data = data[["Confirmed", "State", "County Name", "Production", "EndDate", "NumInfected", "GeoLoc"]]
-wild_birds_save_path = os.path.join("data", "processed_data", "jittered_wild_birds.json")
+wild_birds_save_path = os.path.join("data", "processed_data", "wild_birds.json")
 data.to_json(path_or_buf=wild_birds_save_path, orient="records", indent=4)
