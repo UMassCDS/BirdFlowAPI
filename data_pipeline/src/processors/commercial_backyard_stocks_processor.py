@@ -9,9 +9,9 @@ counties = counties.drop(labels=["Unnamed: 0"], axis=1)
 counties = counties.rename(columns={"county": "County Name", "state": "State"})
 counties["State"] = counties["State"].str.title()
 
-# CBS = commercial and backyard stocks
-cbs_data_path = os.path.join("data", "scraped_data", "commercial_backyard_stocks.csv")
-data = pd.read_csv(cbs_data_path, delimiter="\t", encoding="utf-16", skiprows=1)
+# CBS = commercial and backyard stocks = poultry
+poultry_data_path = os.path.join("data", "scraped_data", "poultry.csv")
+data = pd.read_csv(poultry_data_path, delimiter="\t", encoding="utf-16", skiprows=1)
 data = pd.melt(
     data,
     id_vars=["Confirmed", "State", "County Name", "Special Id", "Production"],
@@ -34,5 +34,5 @@ data["Confirmed"] = data.apply(
 )
 
 data = data[["Confirmed", "State", "County Name", "Production", "EndDate", "NumInfected", "GeoLoc"]]
-cbs_save_path = os.path.join("data", "processed_data", "jittered_commercial_backyard_stocks.json")
-data.to_json(path_or_buf=cbs_save_path, orient="records", indent=4)
+poultry_save_path = os.path.join("data", "processed_data", "poultry.json")
+data.to_json(path_or_buf=poultry_save_path, orient="records", indent=4)

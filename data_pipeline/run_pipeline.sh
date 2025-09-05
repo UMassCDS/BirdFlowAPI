@@ -34,7 +34,7 @@ ORIGINAL_FILES=(
 # Array of new file names (not full paths)
 NEW_FILES=(
     "wild_birds.csv"
-    "commercial_backyard_stocks.csv"
+    "poultry.csv"
     "bovine.csv"
 )
 
