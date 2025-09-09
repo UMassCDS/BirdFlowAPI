@@ -22,6 +22,10 @@ install.packages("path/to/BirdFlowAPI_x.y.z.tar.gz", repos = NULL, type = "sourc
 devtools::install_github("UMassCDS/BirdFlowAPI")
 ```
 
+## Configure API
+
+The `load_models.R` file defines a function `load_models` that loads the the models of all species. The `load_models` function must be explicitly called while configuring the API. This is done by running `load_models()`.
+
 ## Testing
 
 Run the full test suite:
