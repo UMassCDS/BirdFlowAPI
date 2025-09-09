@@ -26,7 +26,6 @@ load_models <- function() {
     # This is slow so skipping if it's already done - useful when developing to 
     # avoid having to wait to reload. 
     if(!exists("models") || !is.environment(models) || !all(species$species %in% names(models))) {
-        models <<- new.env(parent = globalenv())
         print(paste("Loading", length(species$species), "models from https://birdflow-science.s3.amazonaws.com/avian_flu/"))
         for (sp in species$species) {
             print(paste0("Loading model for species: ", sp))
