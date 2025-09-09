@@ -51,7 +51,7 @@ csv_option = WebDriverWait(driver, 10).until(
 )
 driver.execute_script("arguments[0].click();", csv_option)
 
-time.sleep(5)
+time.sleep(2)
 
 # Click "Download" button from pop-up window
 popup_download_btn = WebDriverWait(driver, 10).until(
@@ -59,4 +59,4 @@ popup_download_btn = WebDriverWait(driver, 10).until(
 )
 driver.execute_script("arguments[0].click();", popup_download_btn)
 
-time.sleep(10)
+time.sleep(2)
