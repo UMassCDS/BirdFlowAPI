@@ -61,5 +61,5 @@ popup_download_btn = WebDriverWait(driver, 10).until(
 driver.execute_script("arguments[0].click();", popup_download_btn)
 
 # Extra time to observe changes in webpage
-time.sleep(10)
+time.sleep(2)
 
