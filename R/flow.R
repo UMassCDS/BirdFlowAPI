@@ -228,7 +228,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
   for (i in seq_along(target_species)) {
     sp <- target_species[i]
     bf <- models[[sp]]
-    valid <- is_location_valid(bf, timestep = week, x = xy$x, y = xy$y)
+    valid <- BirdFlowR::is_location_valid(bf, timestep = week, x = xy$x, y = xy$y)
     if (!all(valid)) {
       next
     }
