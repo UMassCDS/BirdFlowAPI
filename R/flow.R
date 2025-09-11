@@ -241,11 +241,11 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
     }
     log_progress(paste("Starting prediction for", sp))
     pred <- predict(bf, start_distr, start = week, n = n, direction = direction)
-    location_i <- xy_to_i(xy, bf = bf)
-    initial_population_distr <- get_distr(bf, which = week)
+    location_i <- BirdFlowR::xy_to_i(xy, bf = bf)
+    initial_population_distr <- BirdFlowR::get_distr(bf, which = week)
     start_proportion <- sum(initial_population_distr[location_i]) / 1
     abundance <- pred * species$population[species$species == sp] / prod(res(bf) / 1000) * start_proportion
-    this_raster <- rasterize_distr(abundance, bf = bf, format = "terra")
+    this_raster <- BirdFlowR::rasterize_distr(abundance, bf = bf, format = "terra")
     if (is.null(combined)) {
       combined <- this_raster
     } else {
