@@ -15,6 +15,8 @@
 #'
 #' @export
 load_models <- function() {
+    # utils::data("species", package = "BirdFlowAPI", envir = environment())
+
     # Load BirdFlow models
     BirdFlowR::birdflow_options(collection_url = "https://birdflow-science.s3.amazonaws.com/sparse_avian_flu/")
     index <- BirdFlowR::load_collection_index()
@@ -23,13 +25,16 @@ load_models <- function() {
         stop("Expected BirdFlow models:", paste(miss, collapse = ", "), " are missing from the model collection." )
     }
 
-    # This is slow so skipping if it's already done - useful when developing to 
-    # avoid having to wait to reload. 
+    # This is slow so skipping if it's already done - useful when developing to
+    # avoid having to wait to reload.
     if(!all(species$species %in% names(models))) {
-        print(paste("Loading", length(species$species), "models from https://birdflow-science.s3.amazonaws.com/avian_flu/"))
+        print(paste("Loading", length(species$species), "models from https://birdflow-science.s3.amazonaws.com/sparse_avian_flu/"))
         for (sp in species$species) {
             print(paste0("Loading model for species: ", sp))
             models[[sp]] <- BirdFlowR::load_model(model = sp)
         }
+    }
+    else {
+        print("Models already loaded.")
     }
 }
