@@ -92,6 +92,7 @@ save_local_path <- "config/save_local.flag"
 #'    `type`
 #' @export
 flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) {
+  # TODO:
   # utils::data("species", package = "BirdFlowAPI", envir = environment())
 
   # load_models()
@@ -233,7 +234,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
       next
     }
     any_valid <- TRUE
-    start_distr <- as_distr(xy, bf)
+    start_distr <- BirdFlowR::as_distr(xy, bf)
     if (nrow(lat_lon) > 1) {
       start_distr <- apply(start_distr, 1, sum)
       start_distr <- start_distr / sum(start_distr)
