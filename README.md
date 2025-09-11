@@ -6,15 +6,10 @@ BirdFlowAPI is an R package containing the API and backend code for the Avian In
 
 You can build and install BirdFlowAPI locally or from GitHub.
 
-**Build locally:**
-```sh
-R CMD build .
-```
-This will create a source tarball (e.g., `BirdFlowAPI_x.y.z.tar.gz`).
 
-**Install from local tarball:**
+**Install from local cloned repository:**
 ```r
-install.packages("path/to/BirdFlowAPI_x.y.z.tar.gz", repos = NULL, type = "source")
+devtools::install()
 ```
 
 **Install from GitHub:**
