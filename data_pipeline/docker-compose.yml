@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  bird-flow-pipeline:
+    build: .
+    environment:
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - ./data:/app/data
+    command: ["./run_pipeline.sh"]

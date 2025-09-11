@@ -1,0 +1,51 @@
+# Exclude deployment and setup scripts (not needed in container)
+deploy-to-fargate.sh
+setup-eventbridge.sh
+setup.sh
+
+# Exclude development files
+docker-compose.yml
+README.md
+DEPLOYMENT_GUIDE.md
+task-definition.json
+
+# Exclude unnecessary Python files
+run_pipeline_container.py
+
+# Exclude ALL local data files - container must create fresh data
+data/scraped_data/
+data/processed_data/
+# Keep only the reference data that processors need
+# data/original_data/ - KEEP THIS (has counties.csv, states.csv)
+
+# Exclude git files
+.git
+.gitignore
+
+# Exclude environment files (use container env vars instead)
+.env
+.env.local
+.env.example
+
+# Exclude OS-specific files
+.DS_Store
+Thumbs.db
+
+# Exclude Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Exclude IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Exclude temporary files
+*.tmp
+*.temp
+*.log
