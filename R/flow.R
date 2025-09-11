@@ -22,7 +22,6 @@ get_s3_config <- function() {
 
 #' Null coalescing operator for config values
 `%||%` <- function(a, b) if (!is.null(a) && !is.na(a) && nzchar(a)) a else b
-#' @import BirdFlowR
 
 if(FALSE) {
    # Manually set function arguments for dev and debugging
@@ -34,12 +33,6 @@ if(FALSE) {
    # Change the working directory to "api" before sourcing so relative paths in
    # the other files are correct
 
-
-   # Load required libraries
-   library(BirdFlowR)
-   library(jsonlite)
-   library(terra)
-   library(aws.s3)
 
    # Load globals and helpers
    original_wd <- getwd()
@@ -99,6 +92,11 @@ save_local_path <- "config/save_local.flag"
 #'    `type`
 #' @export
 flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) {
+  # TODO:
+  # utils::data("species", package = "BirdFlowAPI", envir = environment())
+
+  # load_models()
+
   s3_cfg <- get_s3_config()
   s3_enabled <- !is.na(s3_cfg$bucket) && nzchar(s3_cfg$bucket)
 
@@ -139,24 +137,24 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
 
   # Snap lat/lon to cell center using the first model (all models use same grid)
   bf <- models[[ifelse(taxa == "total", species$species[1], taxa)]]
-  xy <- latlon_to_xy(lat_lon$lat, lat_lon$lon, bf = bf)
-  col <- x_to_col(xy$x, bf = bf)
-  row <- y_to_row(xy$y, bf = bf)
-  x <- col_to_x(col, bf = bf)
-  y <- row_to_y(row, bf = bf)
-  snapped_latlon <- xy_to_latlon(x, y, bf = bf)
+  xy <- BirdFlowR::latlon_to_xy(lat_lon$lat, lat_lon$lon, bf = bf)
+  col <- BirdFlowR::x_to_col(xy$x, bf = bf)
+  row <- BirdFlowR::y_to_row(xy$y, bf = bf)
+  x <- BirdFlowR::col_to_x(col, bf = bf)
+  y <- BirdFlowR::row_to_y(row, bf = bf)
+  snapped_latlon <- BirdFlowR::xy_to_latlon(x, y, bf = bf)
   snapped_latlon$lat <- round(snapped_latlon$lat, 2)
   snapped_latlon$lon <- round(snapped_latlon$lon, 2)
   lat_lon <- snapped_latlon
 
   # Re-compute snapped xy for later use
-  xy <- latlon_to_xy(lat_lon$lat, lat_lon$lon, bf = bf)
+  xy <- BirdFlowR::latlon_to_xy(lat_lon$lat, lat_lon$lon, bf = bf)
 
   # Form file names and S3 keys using snapped lat/lon
   snapped_lat <- paste(lat_lon$lat, collapse = "_")
   snapped_lon <- paste(lat_lon$lon, collapse = "_")
   cache_prefix <- paste0(direction, "/", taxa, "_", week, "_", snapped_lat, "_", snapped_lon, "/")
-  pred_weeks <- lookup_timestep_sequence(bf, start = week, n = n, direction = direction)
+  pred_weeks <- BirdFlowR::lookup_timestep_sequence(bf, start = week, n = n, direction = direction)
   png_files <- paste0(flow_type, "_", taxa, "_", pred_weeks, ".png")
   symbology_files <- paste0(flow_type, "_", taxa, "_", pred_weeks, ".json")
   png_bucket_paths <- paste0(s3_flow_path, cache_prefix, png_files)
@@ -169,14 +167,14 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
   cache_hit <- TRUE
   if (!save_local && s3_enabled) {
     for (i in seq_along(pred_weeks)) {
-      png_exists <- object_exists(object = png_bucket_paths[i], bucket = s3_cfg$bucket)
-      json_exists <- object_exists(object = symbology_bucket_paths[i], bucket = s3_cfg$bucket)
+      png_exists <- aws.s3::object_exists(object = png_bucket_paths[i], bucket = s3_cfg$bucket)
+      json_exists <- aws.s3::object_exists(object = symbology_bucket_paths[i], bucket = s3_cfg$bucket)
       if (!png_exists || !json_exists) {
         cache_hit <- FALSE
         break
       }
     }
-    tiff_exists <- object_exists(object = tiff_bucket_path, bucket = s3_cfg$bucket)
+    tiff_exists <- aws.s3::object_exists(object = tiff_bucket_path, bucket = s3_cfg$bucket)
     if (!tiff_exists) cache_hit <- FALSE
   } else {
     # Local cache: check if all files exist in localtmp
@@ -231,23 +229,23 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
   for (i in seq_along(target_species)) {
     sp <- target_species[i]
     bf <- models[[sp]]
-    valid <- is_location_valid(bf, timestep = week, x = xy$x, y = xy$y)
+    valid <- BirdFlowR::is_location_valid(bf, timestep = week, x = xy$x, y = xy$y)
     if (!all(valid)) {
       next
     }
     any_valid <- TRUE
-    start_distr <- as_distr(xy, bf)
+    start_distr <- BirdFlowR::as_distr(xy, bf)
     if (nrow(lat_lon) > 1) {
       start_distr <- apply(start_distr, 1, sum)
       start_distr <- start_distr / sum(start_distr)
     }
     log_progress(paste("Starting prediction for", sp))
     pred <- predict(bf, start_distr, start = week, n = n, direction = direction)
-    location_i <- xy_to_i(xy, bf = bf)
-    initial_population_distr <- get_distr(bf, which = week)
+    location_i <- BirdFlowR::xy_to_i(xy, bf = bf)
+    initial_population_distr <- BirdFlowR::get_distr(bf, which = week)
     start_proportion <- sum(initial_population_distr[location_i]) / 1
-    abundance <- pred * species$population[species$species == sp] / prod(res(bf) / 1000) * start_proportion
-    this_raster <- rasterize_distr(abundance, bf = bf, format = "terra")
+    abundance <- pred * species$population[species$species == sp] / prod(terra::res(bf) / 1000) * start_proportion
+    this_raster <- BirdFlowR::rasterize_distr(abundance, bf = bf, format = "terra")
     if (is.null(combined)) {
       combined <- this_raster
     } else {
