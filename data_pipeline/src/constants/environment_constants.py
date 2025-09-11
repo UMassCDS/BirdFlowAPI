@@ -1,2 +1,4 @@
-# TODO: REPLACE WITH ACTUAL CHROMEDRIVER PATH IN CONTAINER
-CHROMEDRIVER_PATH = r"C:\Users\athar\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe"
+import os
+
+# Use environment variable for ChromeDriver path, default to container path
+CHROMEDRIVER_PATH = os.getenv('CHROMEDRIVER_PATH', '/usr/bin/chromedriver')
