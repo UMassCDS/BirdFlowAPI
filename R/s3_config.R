@@ -1,20 +1,17 @@
 s3_config <- new.env()
 
 set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, bucket = NULL) {
-  assign(".s3_config", list(
-    access_key = access_key,
-    secret_key = secret_key,
-    region = region,
-    bucket = bucket
-  ), envir = .GlobalEnv)
+  s3_config$access_key <- access_key
+  s3_config$secret_key <- secret_key
+  s3_config$region <- region
+  s3_config$bucket <- bucket
 }
 
 get_s3_config <- function() {
-  config <- if (exists(".s3_config", envir = .GlobalEnv)) get(".s3_config", envir = .GlobalEnv) else list()
-  access_key <- config$access_key %||% Sys.getenv("AWS_ACCESS_KEY_ID", unset = NA)
-  secret_key <- config$secret_key %||% Sys.getenv("AWS_SECRET_ACCESS_KEY", unset = NA)
-  region     <- config$region     %||% Sys.getenv("AWS_DEFAULT_REGION", unset = NA)
-  bucket     <- config$bucket     %||% Sys.getenv("S3_BUCKET_NAME", unset = NA)
+  access_key <- s3_config$access_key %||% Sys.getenv("AWS_ACCESS_KEY_ID", unset = NA)
+  secret_key <- s3_config$secret_key %||% Sys.getenv("AWS_SECRET_ACCESS_KEY", unset = NA)
+  region <- s3_config$region %||% Sys.getenv("AWS_DEFAULT_REGION", unset = NA)
+  bucket <- s3_config$bucket %||% Sys.getenv("S3_BUCKET_NAME", unset = NA)
   list(access_key = access_key, secret_key = secret_key, region = region, bucket = bucket)
 }
 
