@@ -1,4 +1,3 @@
-library(BirdFlowR)
 birdflow_options(collection_url = "https://birdflow-science.s3.amazonaws.com/avian_flu/")
 
 #* Test and generate a plot from a BirdFlow model
