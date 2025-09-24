@@ -31,6 +31,7 @@ set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, b
     dir.create(s3_config$local_cache)
 }
 
+# TODO: add all s3_config params here?
 get_s3_config <- function() {
   access_key <- s3_config$access_key %||% Sys.getenv("AWS_ACCESS_KEY_ID", unset = NA)
   secret_key <- s3_config$secret_key %||% Sys.getenv("AWS_SECRET_ACCESS_KEY", unset = NA)
