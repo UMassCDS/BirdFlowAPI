@@ -16,11 +16,12 @@ s3_config <- new.env()
 # if(!file.exists(s3_config$local_cache))
 #    dir.create(s3_config$local_cache)
 
-set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, bucket = NULL) {
+set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, bucket = NULL, log = TRUE) {
   s3_config$access_key <- access_key
   s3_config$secret_key <- secret_key
   s3_config$region <- region
   s3_config$bucket <- bucket
+
   s3_config$ai_app_crs <- sf::st_crs("EPSG:3857")
   s3_config$ai_app_extent <- c(-18924313.4348565, -5565974.53966368, 1118889.97485796, 15538711.0963092)
   s3_config$s3_bucket_name <- "avianinfluenza"
@@ -29,6 +30,8 @@ set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, b
   s3_config$local_cache <- tempdir()
   if(!file.exists(s3_config$local_cache))
     dir.create(s3_config$local_cache)
+  
+  s3_config$log <- log
 }
 
 # TODO: add all s3_config params here?
