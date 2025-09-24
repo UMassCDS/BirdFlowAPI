@@ -86,7 +86,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
 
   log_progress <- function(msg) {
     if(s3_config$log) {
-      cat(sprintf("[%s] %s\n", Sys.time(), msg), file = "./flow_debug.log", append = TRUE)
+      cat(sprintf("[%s] %s\n", Sys.time(), msg), file = s3_config$log_file_path, append = TRUE)
     }
   }
 

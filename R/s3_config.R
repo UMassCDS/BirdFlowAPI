@@ -16,7 +16,7 @@ s3_config <- new.env()
 # if(!file.exists(s3_config$local_cache))
 #    dir.create(s3_config$local_cache)
 
-set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, bucket = NULL, log = TRUE) {
+set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, bucket = NULL, log = TRUE, log_file_path = "./flow_debug.log") {
   s3_config$access_key <- access_key
   s3_config$secret_key <- secret_key
   s3_config$region <- region
@@ -32,6 +32,7 @@ set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, b
     dir.create(s3_config$local_cache)
   
   s3_config$log <- log
+  s3_config$log_file_path <- log_file_path
 }
 
 # TODO: add all s3_config params here?
