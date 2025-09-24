@@ -139,6 +139,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
   png_urls <- paste0(s3_config$s3_flow_url, cache_prefix, png_files)
   symbology_urls <- paste0(s3_config$s3_flow_url, cache_prefix, symbology_files)
   tiff_bucket_path <- paste0(s3_config$s3_flow_path, cache_prefix, flow_type, "_", taxa, ".tif")
+  local_temp_path <- s3_config$local_temp_path
 
   # --- CACHE CHECK BLOCK ---
   cache_hit <- TRUE
@@ -154,9 +155,9 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
     tiff_exists <- aws.s3::object_exists(object = tiff_bucket_path, bucket = s3_cfg$bucket)
     if (!tiff_exists) cache_hit <- FALSE
   } else {
-    # Local cache: check if all files exist in localtmp
-    dir.create("localtmp", showWarnings = FALSE)
-    local_cache_prefix <- file.path("localtmp", gsub("/", "_", cache_prefix))
+    # Local cache: check if all files exist in local_temp_path
+    dir.create(local_temp_path, showWarnings = FALSE)
+    local_cache_prefix <- file.path(local_temp_path, gsub("/", "_", cache_prefix))
     png_local_paths <- file.path(local_cache_prefix, png_files)
     json_local_paths <- file.path(local_cache_prefix, symbology_files)
     tiff_local_path <- file.path(local_cache_prefix, paste0(flow_type, "_", taxa, ".tif"))
@@ -175,7 +176,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
       )
       log_progress(paste0("Cached result for week ", pred_weeks[i], ": url=", result[[i]]$url, ", legend=", result[[i]]$legend))
     }
-    log_progress(if (save_local) "Returned cached result from localtmp" else "Returned cached result from S3")
+    log_progress(if (save_local) "Returned cached result from local_temp_path" else "Returned cached result from S3")
     return(
       list(
         start = list(week = week, taxa = taxa, loc = loc),
@@ -189,8 +190,8 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
 
   # Continue with prediction
   if (save_local || !s3_enabled) {
-    dir.create("localtmp", showWarnings = FALSE)
-    out_path <- file.path("localtmp", gsub("/", "_", cache_prefix))
+    dir.create(local_temp_path, showWarnings = FALSE)
+    out_path <- file.path(local_temp_path, gsub("/", "_", cache_prefix))
     dir.create(out_path, recursive = TRUE, showWarnings = FALSE)
   } else {
     out_path <- tempfile(pattern = "flow_", tmpdir = "/dev/shm")
