@@ -67,11 +67,6 @@ save_local_path <- "config/save_local.flag"
 #'    `type`
 #' @export
 flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) {
-  # TODO:
-  # utils::data("species", package = "BirdFlowAPI", envir = environment())
-
-  # load_models()
-
   s3_cfg <- get_s3_config()
   s3_enabled <- !is.na(s3_cfg$bucket) && nzchar(s3_cfg$bucket)
 
@@ -85,8 +80,8 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
   }
 
   log_progress <- function(msg) {
-    if(s3_config$log) {
-      cat(sprintf("[%s] %s\n", Sys.time(), msg), file = s3_config$log_file_path, append = TRUE)
+    if(s3_cfg$log) {
+      cat(sprintf("[%s] %s\n", Sys.time(), msg), file = s3_cfg$log_file_path, append = TRUE)
     }
   }
 
@@ -134,12 +129,12 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
   pred_weeks <- BirdFlowR::lookup_timestep_sequence(bf, start = week, n = n, direction = direction)
   png_files <- paste0(flow_type, "_", taxa, "_", pred_weeks, ".png")
   symbology_files <- paste0(flow_type, "_", taxa, "_", pred_weeks, ".json")
-  png_bucket_paths <- paste0(s3_config$s3_flow_path, cache_prefix, png_files)
-  symbology_bucket_paths <- paste0(s3_config$s3_flow_path, cache_prefix, symbology_files)
-  png_urls <- paste0(s3_config$s3_flow_url, cache_prefix, png_files)
-  symbology_urls <- paste0(s3_config$s3_flow_url, cache_prefix, symbology_files)
-  tiff_bucket_path <- paste0(s3_config$s3_flow_path, cache_prefix, flow_type, "_", taxa, ".tif")
-  local_temp_path <- s3_config$local_temp_path
+  png_bucket_paths <- paste0(s3_cfg$s3_flow_path, cache_prefix, png_files)
+  symbology_bucket_paths <- paste0(s3_cfg$s3_flow_path, cache_prefix, symbology_files)
+  png_urls <- paste0(s3_cfg$s3_flow_url, cache_prefix, png_files)
+  symbology_urls <- paste0(s3_cfg$s3_flow_url, cache_prefix, symbology_files)
+  tiff_bucket_path <- paste0(s3_cfg$s3_flow_path, cache_prefix, flow_type, "_", taxa, ".tif")
+  local_temp_path <- s3_cfg$local_temp_path
 
   # --- CACHE CHECK BLOCK ---
   cache_hit <- TRUE
@@ -182,7 +177,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
         start = list(week = week, taxa = taxa, loc = loc),
         status = "cached",
         result = result,
-        geotiff = if (save_local) tiff_local_path else paste0(s3_config$s3_flow_url, cache_prefix, flow_type, "_", taxa, ".tif")
+        geotiff = if (save_local) tiff_local_path else paste0(s3_cfg$s3_flow_url, cache_prefix, flow_type, "_", taxa, ".tif")
       )
     )
   }
@@ -243,25 +238,25 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
 
   log_progress("Projecting and cropping raster for web output.")
   log_progress(paste0("combined class: ", class(combined)))
-  log_progress(paste0("s3_config$ai_app_crs$input: ", s3_config$ai_app_crs$input))
-  log_progress(paste0("s3_config$ai_app_extent: ", s3_config$ai_app_extent))
+  log_progress(paste0("s3_cfg$ai_app_crs$input: ", s3_cfg$ai_app_crs$input))
+  log_progress(paste0("s3_cfg$ai_app_extent: ", s3_cfg$ai_app_extent))
   if (is.null(combined) || !inherits(combined, "SpatRaster")) {
     log_progress("ERROR: combined raster is NULL or not a SpatRaster. Aborting.")
     return(format_error("combined raster is NULL or not a SpatRaster"))
   }
-  if (is.null(s3_config$ai_app_crs$input)) {
-    log_progress("ERROR: s3_config$ai_app_crs$input is NULL. Aborting.")
-    return(format_error("s3_config$ai_app_crs$input is NULL"))
+  if (is.null(s3_cfg$ai_app_crs$input)) {
+    log_progress("ERROR: s3_cfg$ai_app_crs$input is NULL. Aborting.")
+    return(format_error("s3_cfg$ai_app_crs$input is NULL"))
   }
-  if (is.null(s3_config$ai_app_extent)) {
-    log_progress("ERROR: s3_config$ai_app_extent is NULL. Aborting.")
-    return(format_error("s3_config$ai_app_extent is NULL"))
+  if (is.null(s3_cfg$ai_app_extent)) {
+    log_progress("ERROR: s3_cfg$ai_app_extent is NULL. Aborting.")
+    return(format_error("s3_cfg$ai_app_extent is NULL"))
   }
 
   log_progress("Projecting")
-  web_raster <- combined |> terra::project(s3_config$ai_app_crs$input)
+  web_raster <- combined |> terra::project(s3_cfg$ai_app_crs$input)
   log_progress("Cropping")
-  web_raster <- terra::crop(web_raster, s3_config$ai_app_extent)
+  web_raster <- terra::crop(web_raster, s3_cfg$ai_app_extent)
   log_progress("Done cropping")
   png_paths <- file.path(out_path, png_files)
   symbology_paths <- file.path(out_path, symbology_files)
@@ -349,7 +344,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
       start = list(week = week, taxa = taxa, loc = loc),
       status = "success",
       result = result,
-      geotiff = if (save_local) tiff_path else paste0(s3_config$s3_flow_url, cache_prefix, flow_type, "_", taxa, ".tif")
+      geotiff = if (save_local) tiff_path else paste0(s3_cfg$s3_flow_url, cache_prefix, flow_type, "_", taxa, ".tif")
     )
   )
 }
