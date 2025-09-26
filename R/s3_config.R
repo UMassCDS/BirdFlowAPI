@@ -36,13 +36,29 @@ set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, b
   s3_config$local_temp_path <- local_temp_path
 }
 
-# TODO: add all s3_config params here?
 get_s3_config <- function() {
-  access_key <- s3_config$access_key %||% Sys.getenv("AWS_ACCESS_KEY_ID", unset = NA)
-  secret_key <- s3_config$secret_key %||% Sys.getenv("AWS_SECRET_ACCESS_KEY", unset = NA)
-  region <- s3_config$region %||% Sys.getenv("AWS_DEFAULT_REGION", unset = NA)
-  bucket <- s3_config$bucket %||% Sys.getenv("S3_BUCKET_NAME", unset = NA)
-  list(access_key = access_key, secret_key = secret_key, region = region, bucket = bucket)
+  list(
+    access_key = s3_config$access_key %||% Sys.getenv("AWS_ACCESS_KEY_ID", unset = NA),
+    secret_key = s3_config$secret_key %||% Sys.getenv("AWS_SECRET_ACCESS_KEY", unset = NA),
+    region = s3_config$region %||% Sys.getenv("AWS_DEFAULT_REGION", unset = NA),
+    bucket = s3_config$bucket %||% Sys.getenv("S3_BUCKET_NAME", unset = NA),
+    ai_app_crs = s3_config$ai_app_crs %||% NA,
+    ai_app_extent = s3_config$ai_app_extent %||% NA,
+    s3_bucket_name = s3_config$s3_bucket_name %||% NA,
+    s3_flow_path = s3_config$s3_flow_path %||% NA,
+    s3_flow_url = s3_config$s3_flow_url %||% NA,
+    local_cache = s3_config$local_cache %||% NA,
+    log = s3_config$log %||% NA,
+    log_file_path = s3_config$log_file_path %||% NA,
+    local_temp_path = s3_config$local_temp_path %||% NA
+  )
 }
 
-`%||%` <- function(a, b) if (!is.null(a) && !is.na(a) && nzchar(a)) a else b
+# `%||%` <- function(a, b) if (!is.null(a) && !is.na(a) && nzchar(a)) a else b
+
+`%||%` <- function(a, b) {
+  if (is.null(a)) return(b)
+  if (is.atomic(a) && length(a) == 1 && is.na(a)) return(b)
+  if (is.character(a) && length(a) == 1 && !nzchar(a)) return(b)
+  a
+}
