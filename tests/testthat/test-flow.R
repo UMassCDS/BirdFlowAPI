@@ -32,19 +32,19 @@ test_that("status is either success or cached", {
   expect_true(res$status == "success" || res$status == "cached")
 })
 
-test_that("result taxa matches input", {
+test_that("output taxa matches input", {
   params <- standard_flow_input()
   res <- flow(loc = params$loc, week = params$week, taxa = params$taxa, n = params$n, direction = params$direction, save_local = params$save_local)
   expect_true(res$start$taxa == params$taxa)
 })
 
-test_that("result loc matches input", {
+test_that("output loc matches input", {
   params <- standard_flow_input()
   res <- flow(loc = params$loc, week = params$week, taxa = params$taxa, n = params$n, direction = params$direction, save_local = params$save_local)
   expect_true(res$start$loc == params$loc)
 })
 
-test_that("result start week matches input", {
+test_that("output week matches input", {
   params <- standard_flow_input()
   res <- flow(loc = params$loc, week = params$week, taxa = params$taxa, n = params$n, direction = params$direction, save_local = params$save_local)
   expect_true(res$start$week == params$week)
@@ -57,4 +57,10 @@ test_that("geotiff is a valid AWS link", {
     grepl("https://avianinfluenza.s3.us-east-2.amazonaws.com/flow/", res$geotiff) ||
     grepl(paste0(get_s3_config()$local_temp_path, "/"), res$geotiff)
   )
+})
+
+test_that("length of result is n + 1", {
+  params <- standard_flow_input()
+  res <- flow(loc = params$loc, week = params$week, taxa = params$taxa, n = params$n, direction = params$direction, save_local = params$save_local)
+  expect_true(length(res$result) == (params$n + 1))
 })
