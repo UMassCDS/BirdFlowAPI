@@ -71,5 +71,13 @@ test_that("result contents are valid", {
   for(i in seq_along(res$result)) {
     row <- res$result[[i]]
     expect_true(row$week == params$week + i - 1)
+    expect_true(
+      grepl("https://avianinfluenza.s3.us-east-2.amazonaws.com/flow/", row$url) ||
+      grepl(paste0(get_s3_config()$local_temp_path, "/"), row$url)
+    )
+    expect_true(
+      grepl("https://avianinfluenza.s3.us-east-2.amazonaws.com/flow/", row$legend) ||
+      grepl(paste0(get_s3_config()$local_temp_path, "/"), row$legend)
+    )
   }
 })
