@@ -72,7 +72,7 @@ test_that("length of result is n + 1", {
   expect_true(length(res$result) == (params$n + 1))
 })
 
-test_that("result contents are valid", {
+test_that("result contents are valid (outflow)", {
   params <- standard_flow_input()
   res <- flow(loc = params$loc, week = params$week, taxa = params$taxa, n = params$n, direction = params$direction, save_local = params$save_local)
   for(i in seq_along(res$result)) {
@@ -86,5 +86,6 @@ test_that("result contents are valid", {
       grepl("https://avianinfluenza.s3.us-east-2.amazonaws.com/flow/", row$legend) ||
       grepl(paste0(get_s3_config()$local_temp_path, "/"), row$legend)
     )
+    expect_true(row$type == "outflow")
   }
 })
