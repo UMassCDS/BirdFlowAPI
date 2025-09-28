@@ -51,3 +51,13 @@ test_that("result loc matches input", {
   res <- flow(loc = loc, week = week, taxa = taxa, n = n, direction = direction)
   expect_true(res$start$loc == loc)
 })
+
+test_that("result start week matches input", {
+  taxa <- "ambduc"
+  loc <- "42,-70"
+  week <- 3
+  direction <- "forward"
+  n <- 1
+  res <- flow(loc = loc, week = week, taxa = taxa, n = n, direction = direction)
+  expect_true(res$start$week == week)
+})
