@@ -49,3 +49,12 @@ test_that("result start week matches input", {
   res <- flow(loc = params$loc, week = params$week, taxa = params$taxa, n = params$n, direction = params$direction, save_local = params$save_local)
   expect_true(res$start$week == params$week)
 })
+
+test_that("geotiff is a valid AWS link", {
+  params <- standard_flow_input()
+  res <- flow(loc = params$loc, week = params$week, taxa = params$taxa, n = params$n, direction = params$direction, save_local = params$save_local)
+  expect_true(
+    grepl("https://avianinfluenza.s3.us-east-2.amazonaws.com/flow/", res$geotiff) ||
+    grepl(paste0(get_s3_config()$local_temp_path, "/"), res$geotiff)
+  )
+})
