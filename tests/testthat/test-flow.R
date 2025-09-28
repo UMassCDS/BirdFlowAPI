@@ -26,9 +26,16 @@ test_that("flow does not throw error with single multi-point input", {
   )
 })
 
-test_that("status is either success or cached", {
+test_that("status is either success or cached (outflow)", {
   params <- standard_flow_input()
   res <- flow(loc = params$loc, week = params$week, taxa = params$taxa, n = params$n, direction = params$direction, save_local = params$save_local)
+  expect_true(res$status == "success" || res$status == "cached")
+})
+
+test_that("status is either success or cached (inflow)", {
+  params <- standard_flow_input()
+  direction <- "backward"
+  res <- flow(loc = params$loc, week = params$week, taxa = params$taxa, n = params$n, direction = direction, save_local = params$save_local)
   expect_true(res$status == "success" || res$status == "cached")
 })
 
