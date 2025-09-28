@@ -31,3 +31,13 @@ test_that("status is either success or cached", {
   res <- flow(loc = loc, week = week, taxa = taxa, n = n, direction = direction)
   expect_true(res$status == "success" || res$status == "cached")
 })
+
+test_that("result taxa matches input", {
+  taxa <- "ambduc"
+  loc <- "42,-70"
+  week <- 3
+  direction <- "forward"
+  n <- 1
+  res <- flow(loc = loc, week = week, taxa = taxa, n = n, direction = direction)
+  expect_true(res$start$taxa == taxa)
+})
