@@ -89,3 +89,27 @@ test_that("result contents are valid (outflow)", {
     expect_true(row$type == "outflow")
   }
 })
+
+test_that("result contents are valid (inflow)", {
+  params <- standard_flow_input()
+  direction <- "backward"
+  res <- flow(loc = params$loc, week = params$week, taxa = params$taxa, n = params$n, direction = direction, save_local = params$save_local)
+  curr_week <- params$week
+  for(i in seq_along(res$result)) {
+    row <- res$result[[i]]
+    expect_true(row$week == curr_week)
+    curr_week <- curr_week - 1
+    if(curr_week == 0) {
+      curr_week <- 52
+    }
+    expect_true(
+      grepl("https://avianinfluenza.s3.us-east-2.amazonaws.com/flow/", row$url) ||
+      grepl(paste0(get_s3_config()$local_temp_path, "/"), row$url)
+    )
+    expect_true(
+      grepl("https://avianinfluenza.s3.us-east-2.amazonaws.com/flow/", row$legend) ||
+      grepl(paste0(get_s3_config()$local_temp_path, "/"), row$legend)
+    )
+    expect_true(row$type == "inflow")
+  }
+})
