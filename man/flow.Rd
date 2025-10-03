@@ -4,7 +4,7 @@
 \alias{flow}
 \title{Implement inflow and outflow}
 \usage{
-flow(loc, week, taxa, n, direction = "forward", save_local = SAVE_LOCAL)
+flow(loc, week, taxa, n, direction = "forward", save_local = FALSE)
 }
 \arguments{
 \item{loc}{One or more locations as a scalar character each location should
@@ -21,7 +21,7 @@ the initial week so will have n + 1 images)}
 
 \item{direction}{Which direction to project in "backward" for inflow or "forward" for outflow"}
 
-\item{save_local}{True/False boolean flag - determines whether to copy files to AWS S3 bucket}
+\item{save_local}{True/False boolean flag - determines whether to save results locally (default: value in config/save_local.flag, or FALSE if not present). If FALSE, results are uploaded to S3 if configured.}
 }
 \value{
 A list with components:
@@ -36,6 +36,7 @@ A list with components:
 \code{week}
 \code{url}
 \code{legend}
+\code{type}
 }
 \description{
 This function is the heart of the inflow and outflow api and does all

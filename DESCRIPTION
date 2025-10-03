@@ -13,7 +13,8 @@ Imports:
     plumber,
     jsonlite,
     aws.s3,
-    terra
+    terra,
+    sf
 Suggests: 
     testthat (>= 3.0.0),
     callthat,

@@ -1,29 +1,3 @@
-#' Set S3 configuration explicitly
-#'
-#' Allows user to set S3 credentials and bucket at runtime. If not set, environment variables or IAM role will be used.
-set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, bucket = NULL) {
-  assign(".s3_config", list(
-    access_key = access_key,
-    secret_key = secret_key,
-    region = region,
-    bucket = bucket
-  ), envir = .GlobalEnv)
-}
-
-#' Get S3 configuration from explicit config, environment variables, or IAM role
-get_s3_config <- function() {
-  config <- if (exists(".s3_config", envir = .GlobalEnv)) get(".s3_config", envir = .GlobalEnv) else list()
-  access_key <- config$access_key %||% Sys.getenv("AWS_ACCESS_KEY_ID", unset = NA)
-  secret_key <- config$secret_key %||% Sys.getenv("AWS_SECRET_ACCESS_KEY", unset = NA)
-  region     <- config$region     %||% Sys.getenv("AWS_DEFAULT_REGION", unset = NA)
-  bucket     <- config$bucket     %||% Sys.getenv("S3_BUCKET_NAME", unset = NA)
-  list(access_key = access_key, secret_key = secret_key, region = region, bucket = bucket)
-}
-
-#' Null coalescing operator for config values
-`%||%` <- function(a, b) if (!is.null(a) && !is.na(a) && nzchar(a)) a else b
-#' @import BirdFlowR
-
 if(FALSE) {
    # Manually set function arguments for dev and debugging
    # Running code here allows running function body code outside of the
@@ -34,12 +8,6 @@ if(FALSE) {
    # Change the working directory to "api" before sourcing so relative paths in
    # the other files are correct
 
-
-   # Load required libraries
-   library(BirdFlowR)
-   library(jsonlite)
-   library(terra)
-   library(aws.s3)
 
    # Load globals and helpers
    original_wd <- getwd()
@@ -112,7 +80,9 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
   }
 
   log_progress <- function(msg) {
-    cat(sprintf("[%s] %s\n", Sys.time(), msg), file = "./flow_debug.log", append = TRUE)
+    if(s3_cfg$log) {
+      cat(sprintf("[%s] %s\n", Sys.time(), msg), file = s3_cfg$log_file_path, append = TRUE)
+    }
   }
 
   log_progress(paste0("Starting flow function with arguments: loc=", loc, ", week=", week, ", taxa=", taxa, ", n=", n, ", direction=", direction, ", save_local=", save_local))
@@ -139,49 +109,50 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
 
   # Snap lat/lon to cell center using the first model (all models use same grid)
   bf <- models[[ifelse(taxa == "total", species$species[1], taxa)]]
-  xy <- latlon_to_xy(lat_lon$lat, lat_lon$lon, bf = bf)
-  col <- x_to_col(xy$x, bf = bf)
-  row <- y_to_row(xy$y, bf = bf)
-  x <- col_to_x(col, bf = bf)
-  y <- row_to_y(row, bf = bf)
-  snapped_latlon <- xy_to_latlon(x, y, bf = bf)
+  xy <- BirdFlowR::latlon_to_xy(lat_lon$lat, lat_lon$lon, bf = bf)
+  col <- BirdFlowR::x_to_col(xy$x, bf = bf)
+  row <- BirdFlowR::y_to_row(xy$y, bf = bf)
+  x <- BirdFlowR::col_to_x(col, bf = bf)
+  y <- BirdFlowR::row_to_y(row, bf = bf)
+  snapped_latlon <- BirdFlowR::xy_to_latlon(x, y, bf = bf)
   snapped_latlon$lat <- round(snapped_latlon$lat, 2)
   snapped_latlon$lon <- round(snapped_latlon$lon, 2)
   lat_lon <- snapped_latlon
 
   # Re-compute snapped xy for later use
-  xy <- latlon_to_xy(lat_lon$lat, lat_lon$lon, bf = bf)
+  xy <- BirdFlowR::latlon_to_xy(lat_lon$lat, lat_lon$lon, bf = bf)
 
   # Form file names and S3 keys using snapped lat/lon
   snapped_lat <- paste(lat_lon$lat, collapse = "_")
   snapped_lon <- paste(lat_lon$lon, collapse = "_")
   cache_prefix <- paste0(direction, "/", taxa, "_", week, "_", snapped_lat, "_", snapped_lon, "/")
-  pred_weeks <- lookup_timestep_sequence(bf, start = week, n = n, direction = direction)
+  pred_weeks <- BirdFlowR::lookup_timestep_sequence(bf, start = week, n = n, direction = direction)
   png_files <- paste0(flow_type, "_", taxa, "_", pred_weeks, ".png")
   symbology_files <- paste0(flow_type, "_", taxa, "_", pred_weeks, ".json")
-  png_bucket_paths <- paste0(s3_flow_path, cache_prefix, png_files)
-  symbology_bucket_paths <- paste0(s3_flow_path, cache_prefix, symbology_files)
-  png_urls <- paste0(s3_flow_url, cache_prefix, png_files)
-  symbology_urls <- paste0(s3_flow_url, cache_prefix, symbology_files)
-  tiff_bucket_path <- paste0(s3_flow_path, cache_prefix, flow_type, "_", taxa, ".tif")
+  png_bucket_paths <- paste0(s3_cfg$s3_flow_path, cache_prefix, png_files)
+  symbology_bucket_paths <- paste0(s3_cfg$s3_flow_path, cache_prefix, symbology_files)
+  png_urls <- paste0(s3_cfg$s3_flow_url, cache_prefix, png_files)
+  symbology_urls <- paste0(s3_cfg$s3_flow_url, cache_prefix, symbology_files)
+  tiff_bucket_path <- paste0(s3_cfg$s3_flow_path, cache_prefix, flow_type, "_", taxa, ".tif")
+  local_temp_path <- s3_cfg$local_temp_path
 
   # --- CACHE CHECK BLOCK ---
   cache_hit <- TRUE
   if (!save_local && s3_enabled) {
     for (i in seq_along(pred_weeks)) {
-      png_exists <- object_exists(object = png_bucket_paths[i], bucket = s3_cfg$bucket)
-      json_exists <- object_exists(object = symbology_bucket_paths[i], bucket = s3_cfg$bucket)
+      png_exists <- aws.s3::object_exists(object = png_bucket_paths[i], bucket = s3_cfg$bucket)
+      json_exists <- aws.s3::object_exists(object = symbology_bucket_paths[i], bucket = s3_cfg$bucket)
       if (!png_exists || !json_exists) {
         cache_hit <- FALSE
         break
       }
     }
-    tiff_exists <- object_exists(object = tiff_bucket_path, bucket = s3_cfg$bucket)
+    tiff_exists <- aws.s3::object_exists(object = tiff_bucket_path, bucket = s3_cfg$bucket)
     if (!tiff_exists) cache_hit <- FALSE
   } else {
-    # Local cache: check if all files exist in localtmp
-    dir.create("localtmp", showWarnings = FALSE)
-    local_cache_prefix <- file.path("localtmp", gsub("/", "_", cache_prefix))
+    # Local cache: check if all files exist in local_temp_path
+    dir.create(local_temp_path, showWarnings = FALSE)
+    local_cache_prefix <- file.path(local_temp_path, gsub("/", "_", cache_prefix))
     png_local_paths <- file.path(local_cache_prefix, png_files)
     json_local_paths <- file.path(local_cache_prefix, symbology_files)
     tiff_local_path <- file.path(local_cache_prefix, paste0(flow_type, "_", taxa, ".tif"))
@@ -200,13 +171,13 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
       )
       log_progress(paste0("Cached result for week ", pred_weeks[i], ": url=", result[[i]]$url, ", legend=", result[[i]]$legend))
     }
-    log_progress(if (save_local) "Returned cached result from localtmp" else "Returned cached result from S3")
+    log_progress(if (save_local) "Returned cached result from local_temp_path" else "Returned cached result from S3")
     return(
       list(
         start = list(week = week, taxa = taxa, loc = loc),
         status = "cached",
         result = result,
-        geotiff = if (save_local) tiff_local_path else paste0(s3_flow_url, cache_prefix, flow_type, "_", taxa, ".tif")
+        geotiff = if (save_local) tiff_local_path else paste0(s3_cfg$s3_flow_url, cache_prefix, flow_type, "_", taxa, ".tif")
       )
     )
   }
@@ -214,8 +185,8 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
 
   # Continue with prediction
   if (save_local || !s3_enabled) {
-    dir.create("localtmp", showWarnings = FALSE)
-    out_path <- file.path("localtmp", gsub("/", "_", cache_prefix))
+    dir.create(local_temp_path, showWarnings = FALSE)
+    out_path <- file.path(local_temp_path, gsub("/", "_", cache_prefix))
     dir.create(out_path, recursive = TRUE, showWarnings = FALSE)
   } else {
     out_path <- tempfile(pattern = "flow_", tmpdir = "/dev/shm")
@@ -231,23 +202,23 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
   for (i in seq_along(target_species)) {
     sp <- target_species[i]
     bf <- models[[sp]]
-    valid <- is_location_valid(bf, timestep = week, x = xy$x, y = xy$y)
+    valid <- BirdFlowR::is_location_valid(bf, timestep = week, x = xy$x, y = xy$y)
     if (!all(valid)) {
       next
     }
     any_valid <- TRUE
-    start_distr <- as_distr(xy, bf)
+    start_distr <- BirdFlowR::as_distr(xy, bf)
     if (nrow(lat_lon) > 1) {
       start_distr <- apply(start_distr, 1, sum)
       start_distr <- start_distr / sum(start_distr)
     }
     log_progress(paste("Starting prediction for", sp))
     pred <- predict(bf, start_distr, start = week, n = n, direction = direction)
-    location_i <- xy_to_i(xy, bf = bf)
-    initial_population_distr <- get_distr(bf, which = week)
+    location_i <- BirdFlowR::xy_to_i(xy, bf = bf)
+    initial_population_distr <- BirdFlowR::get_distr(bf, which = week)
     start_proportion <- sum(initial_population_distr[location_i]) / 1
-    abundance <- pred * species$population[species$species == sp] / prod(res(bf) / 1000) * start_proportion
-    this_raster <- rasterize_distr(abundance, bf = bf, format = "terra")
+    abundance <- pred * species$population[species$species == sp] / prod(terra::res(bf) / 1000) * start_proportion
+    this_raster <- BirdFlowR::rasterize_distr(abundance, bf = bf, format = "terra")
     if (is.null(combined)) {
       combined <- this_raster
     } else {
@@ -267,25 +238,25 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
 
   log_progress("Projecting and cropping raster for web output.")
   log_progress(paste0("combined class: ", class(combined)))
-  log_progress(paste0("ai_app_crs$input: ", ai_app_crs$input))
-  log_progress(paste0("ai_app_extent: ", ai_app_extent))
+  log_progress(paste0("s3_cfg$ai_app_crs$input: ", s3_cfg$ai_app_crs$input))
+  log_progress(paste0("s3_cfg$ai_app_extent: ", s3_cfg$ai_app_extent))
   if (is.null(combined) || !inherits(combined, "SpatRaster")) {
     log_progress("ERROR: combined raster is NULL or not a SpatRaster. Aborting.")
     return(format_error("combined raster is NULL or not a SpatRaster"))
   }
-  if (is.null(ai_app_crs$input)) {
-    log_progress("ERROR: ai_app_crs$input is NULL. Aborting.")
-    return(format_error("ai_app_crs$input is NULL"))
+  if (is.null(s3_cfg$ai_app_crs$input)) {
+    log_progress("ERROR: s3_cfg$ai_app_crs$input is NULL. Aborting.")
+    return(format_error("s3_cfg$ai_app_crs$input is NULL"))
   }
-  if (is.null(ai_app_extent)) {
-    log_progress("ERROR: ai_app_extent is NULL. Aborting.")
-    return(format_error("ai_app_extent is NULL"))
+  if (is.null(s3_cfg$ai_app_extent)) {
+    log_progress("ERROR: s3_cfg$ai_app_extent is NULL. Aborting.")
+    return(format_error("s3_cfg$ai_app_extent is NULL"))
   }
 
   log_progress("Projecting")
-  web_raster <- combined |> terra::project(ai_app_crs$input)
+  web_raster <- combined |> terra::project(s3_cfg$ai_app_crs$input)
   log_progress("Cropping")
-  web_raster <- terra::crop(web_raster, ai_app_extent)
+  web_raster <- terra::crop(web_raster, s3_cfg$ai_app_extent)
   log_progress("Done cropping")
   png_paths <- file.path(out_path, png_files)
   symbology_paths <- file.path(out_path, symbology_files)
@@ -373,7 +344,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
       start = list(week = week, taxa = taxa, loc = loc),
       status = "success",
       result = result,
-      geotiff = if (save_local) tiff_path else paste0(s3_flow_url, cache_prefix, flow_type, "_", taxa, ".tif")
+      geotiff = if (save_local) tiff_path else paste0(s3_cfg$s3_flow_url, cache_prefix, flow_type, "_", taxa, ".tif")
     )
   )
 }
