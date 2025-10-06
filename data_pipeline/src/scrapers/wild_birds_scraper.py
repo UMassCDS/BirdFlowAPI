@@ -42,4 +42,4 @@ csv_download_button = WebDriverWait(driver, 10).until(
 driver.execute_script("arguments[0].click();", csv_download_button)
 
 # Extra time to observe changes in webpage
-time.sleep(10)
+time.sleep(2)
