@@ -3,7 +3,7 @@
 # Run poultry scraper
 python -m src.scrapers.poultry_scraper
 if [ $? -eq 0 ]; then
-    echo "Poultry scraper ran successfully."
+    echo "Poultry scraper executed successfully."
 else
     echo "Poultry scraper failed."
 fi
@@ -11,7 +11,7 @@ fi
 # Run wild birds scraper
 python -m src.scrapers.wild_birds_scraper
 if [ $? -eq 0 ]; then
-    echo "Wild birds scraper ran successfully."
+    echo "Wild birds scraper executed successfully."
 else
     echo "Wild birds scraper failed."
 fi
@@ -19,7 +19,7 @@ fi
 # Run bovine scraper
 python -m src.scrapers.bovine_scraper
 if [ $? -eq 0 ]; then
-    echo "Bovine scraper ran successfully."
+    echo "Bovine scraper executed successfully."
 else
     echo "Bovine scraper failed."
 fi

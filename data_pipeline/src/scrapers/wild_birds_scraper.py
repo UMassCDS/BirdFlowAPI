@@ -21,6 +21,11 @@ prefs = {
 }
 chrome_options.add_experimental_option("prefs", prefs)
 chrome_options.add_argument("--log-level=3")
+chrome_options.add_argument("--headless=new")
+chrome_options.add_argument("--window-size=1920,1080")
+chrome_options.add_argument("--user-data-dir=/tmp/chrome-wildbirds")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
 
 service = Service(CHROMEDRIVER_PATH)
 
@@ -37,4 +42,4 @@ csv_download_button = WebDriverWait(driver, 10).until(
 driver.execute_script("arguments[0].click();", csv_download_button)
 
 # Extra time to observe changes in webpage
-time.sleep(10)
+time.sleep(2)
