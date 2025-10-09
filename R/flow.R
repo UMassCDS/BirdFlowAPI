@@ -195,6 +195,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
   combined <- NULL
   any_valid <- FALSE
 
+
   for (i in seq_along(target_species)) {
     sp <- target_species[i]
     bf <- models[[sp]]
@@ -215,12 +216,19 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
     start_proportion <- sum(initial_population_distr[location_i]) / 1
     abundance <- pred * species$population[species$species == sp] / prod(terra::res(bf) / 1000) * start_proportion
     this_raster <- BirdFlowR::rasterize_distr(abundance, bf = bf, format = "terra")
+
+    # Make NA zero (for adding)
+    this_raster[is.na(this_raster)] <- 0
+
     if (is.null(combined)) {
       combined <- this_raster
     } else {
       combined <- combined + this_raster
     }
   }
+
+  # Make zeros transparent
+  combined[combined == 0] <- NA
 
   if (!any_valid) {
     log_progress("No valid starting location. Returning error.")
