@@ -113,3 +113,29 @@ test_that("result contents are valid (inflow)", {
     expect_true(row$type == "inflow")
   }
 })
+
+
+
+test_that("total is not constrained by indivual taxa NAs", {
+  params <- standard_flow_input()
+
+  # Make a total projection
+  params$taxa <- "total"
+  expect_no_error(total_result <- do.call(flow, params))
+  total <- terra::rast(total_result$geotiff)
+
+  # Same start but for american black duck
+  params$taxa <- "ambduc"
+  expect_no_error(ambduc_result <- do.call(flow, params))
+  ambduc <- terra::rast(ambduc_result$geotiff)
+
+  # There should be more NA's in the American black duck result than in the total
+  ambduc_nas <- terra::values(ambduc) |> is.na() |> sum()
+  total_nas <- terra::values(total) |> is.na() |> sum()
+  expect_true(ambduc_nas > total_nas)
+
+  # The total should not be NA anywhere that ambduc is not NA
+  n_wrong <- (is.na(total) & !is.na(ambduc)) |> terra::values() |> sum()
+  expect_equal(n_wrong, 0)
+
+})
