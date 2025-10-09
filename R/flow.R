@@ -13,11 +13,7 @@ if(FALSE) {
    original_wd <- getwd()
    if(!grepl("api$", getwd()))
       setwd("api")
-   source("config/globals.R")
-   source("utils/helpers.R")
-   source("utils/symbolize_raster_data.R")
-   source("utils/save_json_palette.R")
-   source("utils/range_rescale.R")
+   # source() commands removed - outdated paths from old repo
    setwd(original_wd)
 
    # Set example arguments values as R objects
