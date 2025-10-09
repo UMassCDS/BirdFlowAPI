@@ -62,6 +62,7 @@ save_local_path <- "config/save_local.flag"
 #'    `legend`
 #'    `type`
 #' @export
+#' @importFrom stats predict
 flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) {
   s3_cfg <- get_s3_config()
   s3_enabled <- !is.na(s3_cfg$bucket) && nzchar(s3_cfg$bucket)
