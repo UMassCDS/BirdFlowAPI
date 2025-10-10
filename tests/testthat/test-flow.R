@@ -116,7 +116,7 @@ test_that("result contents are valid (inflow)", {
 
 
 
-test_that("total is not constrained by indivual taxa NAs", {
+test_that("total is not constrained by individual taxa NAs", {
   params <- standard_flow_input()
 
   # Make a total projection
