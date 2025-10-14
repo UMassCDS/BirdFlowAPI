@@ -48,7 +48,8 @@ test_that("output taxa matches input", {
 test_that("output loc matches input", {
   params <- standard_flow_input()
   res <- flow(loc = params$loc, week = params$week, taxa = params$taxa, n = params$n, direction = params$direction, save_local = params$save_local)
-  expect_true(res$start$loc == params$loc)
+  input_loc <- as.numeric(strsplit(params$loc, ",")[[1]])
+  expect_true(all(res$start$location[[1]] == input_loc))
 })
 
 test_that("output week matches input", {
@@ -122,12 +123,12 @@ test_that("total is not constrained by individual taxa NAs", {
   # Make a total projection
   params$taxa <- "total"
   expect_no_error(total_result <- do.call(flow, params))
-  total <- terra::rast(total_result$geotiff)
+  total <- terra::rast(as.character(total_result$geotiff))
 
   # Same start but for american black duck
   params$taxa <- "ambduc"
   expect_no_error(ambduc_result <- do.call(flow, params))
-  ambduc <- terra::rast(ambduc_result$geotiff)
+  ambduc <- terra::rast(as.character(ambduc_result$geotiff))
 
   # There should be more NA's in the American black duck result than in the total
   ambduc_nas <- terra::values(ambduc) |> is.na() |> sum()
