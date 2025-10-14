@@ -18,7 +18,8 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0),
     callthat,
-    httr
+    httr,
+    withr
 Config/testthat/edition: 3
 Remotes:
     birdflow-science/BirdFlowR,

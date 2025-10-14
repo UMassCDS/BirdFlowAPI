@@ -56,3 +56,6 @@
 #'   \item{"jitter_radius"}{Jitter radius in meters}
 #' }
 "counties_json"
+
+# Declare these as global variables so package check doesn't flag them
+utils::globalVariables(c("species", "flow_colors"))
