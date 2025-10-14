@@ -70,4 +70,14 @@ set_s3_config(region = "us-east-1", bucket = "my-bucket")
 flow(...)
 ```
 
+
+## Running Pipeline in docker:
+```bash
+docker build -t bird-flow-pipeline .
+docker run --rm bird-flow-pipeline
+```
+
+
+
+
 See package documentation for more details.
