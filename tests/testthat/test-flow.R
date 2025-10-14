@@ -123,12 +123,12 @@ test_that("total is not constrained by individual taxa NAs", {
   # Make a total projection
   params$taxa <- "total"
   expect_no_error(total_result <- do.call(flow, params))
-  total <- terra::rast(total_result$geotiff)
+  total <- terra::rast(as.character(total_result$geotiff))
 
   # Same start but for american black duck
   params$taxa <- "ambduc"
   expect_no_error(ambduc_result <- do.call(flow, params))
-  ambduc <- terra::rast(ambduc_result$geotiff)
+  ambduc <- terra::rast(as.character(ambduc_result$geotiff))
 
   # There should be more NA's in the American black duck result than in the total
   ambduc_nas <- terra::values(ambduc) |> is.na() |> sum()
