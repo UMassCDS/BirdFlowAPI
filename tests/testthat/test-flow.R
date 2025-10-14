@@ -48,7 +48,8 @@ test_that("output taxa matches input", {
 test_that("output loc matches input", {
   params <- standard_flow_input()
   res <- flow(loc = params$loc, week = params$week, taxa = params$taxa, n = params$n, direction = params$direction, save_local = params$save_local)
-  expect_true(res$start$loc == params$loc)
+  input_loc <- as.numeric(strsplit(params$loc, ",")[[1]])
+  expect_true(all(res$start$location[[1]] == input_loc))
 })
 
 test_that("output week matches input", {
