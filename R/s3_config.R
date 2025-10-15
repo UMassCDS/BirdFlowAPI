@@ -10,11 +10,10 @@ s3_config <- new.env()
 #' @param log_file_path Path for log file (default: "./flow_debug.log")
 #' @param local_temp_path Path for local temp files (default: "localtmp")
 #' @export
-set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, bucket = "avianinfluenza", log = TRUE, log_file_path = "./flow_debug.log", local_temp_path = "localtmp") {
+set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, log = TRUE, log_file_path = "./flow_debug.log", local_temp_path = "localtmp") {
   s3_config$access_key <- access_key
   s3_config$secret_key <- secret_key
   s3_config$region <- region
-  s3_config$bucket <- bucket
 
   s3_config$ai_app_crs <- sf::st_crs("EPSG:3857")
   s3_config$ai_app_extent <- c(-18924313.4348565, -5565974.53966368, 1118889.97485796, 15538711.0963092)
@@ -39,10 +38,9 @@ get_s3_config <- function() {
     access_key = s3_config$access_key %||% Sys.getenv("AWS_ACCESS_KEY_ID", unset = NA),
     secret_key = s3_config$secret_key %||% Sys.getenv("AWS_SECRET_ACCESS_KEY", unset = NA),
     region = s3_config$region %||% Sys.getenv("AWS_DEFAULT_REGION", unset = NA),
-    bucket = s3_config$bucket %||% Sys.getenv("S3_BUCKET_NAME", unset = NA),
     ai_app_crs = s3_config$ai_app_crs %||% NA,
     ai_app_extent = s3_config$ai_app_extent %||% NA,
-    s3_bucket_name = s3_config$s3_bucket_name %||% NA,
+    s3_bucket_name = s3_config$s3_bucket_name %||% Sys.getenv("S3_BUCKET_NAME", unset = NA),
     s3_flow_path = s3_config$s3_flow_path %||% NA,
     s3_flow_url = s3_config$s3_flow_url %||% NA,
     local_cache = s3_config$local_cache %||% NA,
