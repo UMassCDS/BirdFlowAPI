@@ -88,3 +88,12 @@ if [ $? -eq 0 ]; then
 else
     echo "Bovine processor failed."
 fi
+
+# --- Upload processed data to S3 ---
+python -m src.utils.s3_uploader
+
+if [ $? -eq 0 ]; then
+    echo "S3 upload executed successfully."
+else
+    echo "S3 upload failed."
+fi
