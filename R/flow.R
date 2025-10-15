@@ -161,10 +161,6 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
     result <- vector("list", length = n + 1)
     for (i in seq_along(pred_weeks)) {
       result[[i]] <- list(
-        # week = pred_weeks[i],
-        # url = if (save_local) png_local_paths[i] else png_urls[i],
-        # legend = if (save_local) json_local_paths[i] else symbology_urls[i],
-        # type = flow_type
         week = jsonlite::unbox(as.integer(pred_weeks[i])),
         url = jsonlite::unbox(as.character(if (save_local) png_local_paths[i] else png_urls[i])),
         legend = jsonlite::unbox(as.character(if (save_local) json_local_paths[i] else symbology_urls[i])),
@@ -175,10 +171,6 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
     log_progress(if (save_local) "Returned cached result from local_temp_path" else "Returned cached result from S3")
     return(
       list(
-        # start = list(week = week, taxa = taxa, loc = loc),
-        # status = "cached",
-        # result = result,
-        # geotiff = if (save_local) tiff_local_path else paste0(s3_cfg$s3_flow_url, cache_prefix, flow_type, "_", taxa, ".tif")
         start = list(
           week = jsonlite::unbox(as.integer(week)),
           taxa = jsonlite::unbox(as.character(taxa)),
@@ -348,10 +340,6 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
   result <- vector("list", length = n + 1)
   for (i in seq_along(pred_weeks)) {
     result[[i]] <- list(
-      # week = pred_weeks[i],
-      # url = if (save_local) png_paths[i] else png_urls[i],
-      # legend = if (save_local) symbology_paths[i] else symbology_urls[i],
-      # type = flow_type
       week = jsonlite::unbox(as.integer(pred_weeks[i])),
       url = jsonlite::unbox(as.character(if (save_local) png_paths[i] else png_urls[i])),
       legend = jsonlite::unbox(as.character(if (save_local) symbology_paths[i] else symbology_urls[i])),
@@ -362,10 +350,6 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
   log_progress("Flow function complete. Returning result.")
   return(
     list(
-      # start = list(week = week, taxa = taxa, loc = loc),
-      # status = "success",
-      # result = result,
-      # geotiff = if (save_local) tiff_path else paste0(s3_cfg$s3_flow_url, cache_prefix, flow_type, "_", taxa, ".tif")
       start = list(
         week = jsonlite::unbox(as.integer(week)),
         taxa = jsonlite::unbox(as.character(taxa)),
