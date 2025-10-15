@@ -325,6 +325,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
         log_progress(paste("JSON upload successful:", symbology_bucket_paths[i]))
       }, error = function(e) {
         log_progress(paste("JSON upload ERROR:", e$message))
+        return(format_error("Failed to upload to S3."))
       })
       file.remove(symbology_paths[i])
     }
