@@ -10,7 +10,7 @@ s3_config <- new.env()
 #' @param log_file_path Path for log file (default: "./flow_debug.log")
 #' @param local_temp_path Path for local temp files (default: "localtmp")
 #' @export
-set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, bucket = NULL, log = TRUE, log_file_path = "./flow_debug.log", local_temp_path = "localtmp") {
+set_s3_config <- function(access_key = NULL, secret_key = NULL, region = NULL, bucket = "avianinfluenza", log = TRUE, log_file_path = "./flow_debug.log", local_temp_path = "localtmp") {
   s3_config$access_key <- access_key
   s3_config$secret_key <- secret_key
   s3_config$region <- region
