@@ -80,6 +80,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
     if(s3_cfg$log) {
       cat(sprintf("[%s] %s\n", Sys.time(), msg), file = s3_cfg$log_file_path, append = TRUE)
     }
+    print(sprintf("[%s] %s", Sys.time(), msg))
   }
 
   log_progress(paste0("Starting flow function with arguments: loc=", loc, ", week=", week, ", taxa=", taxa, ", n=", n, ", direction=", direction, ", save_local=", save_local))
