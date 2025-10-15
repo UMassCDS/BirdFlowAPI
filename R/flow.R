@@ -65,7 +65,11 @@ save_local_path <- "config/save_local.flag"
 #' @importFrom stats predict
 flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) {
   s3_cfg <- get_s3_config()
-  s3_enabled <- !is.na(s3_cfg$bucket) && nzchar(s3_cfg$bucket)
+  s3_enabled <- !is.na(s3_cfg$s3_bucket_name) && nzchar(s3_cfg$s3_bucket_name)
+  
+  # print(s3_enabled)
+  # print(paste0("S3_ENABLED: ", s3_enabled))
+  # print(paste0("S3_CFG: ", s3_cfg))
 
   format_error <- function(message, status = "error") {
     log_progress(paste("ERROR:", message))
@@ -137,14 +141,14 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
   cache_hit <- TRUE
   if (!save_local && s3_enabled) {
     for (i in seq_along(pred_weeks)) {
-      png_exists <- aws.s3::object_exists(object = png_bucket_paths[i], bucket = s3_cfg$bucket)
-      json_exists <- aws.s3::object_exists(object = symbology_bucket_paths[i], bucket = s3_cfg$bucket)
+      png_exists <- aws.s3::object_exists(object = png_bucket_paths[i], bucket = s3_cfg$s3_bucket_name)
+      json_exists <- aws.s3::object_exists(object = symbology_bucket_paths[i], bucket = s3_cfg$s3_bucket_name)
       if (!png_exists || !json_exists) {
         cache_hit <- FALSE
         break
       }
     }
-    tiff_exists <- aws.s3::object_exists(object = tiff_bucket_path, bucket = s3_cfg$bucket)
+    tiff_exists <- aws.s3::object_exists(object = tiff_bucket_path, bucket = s3_cfg$s3_bucket_name)
     if (!tiff_exists) cache_hit <- FALSE
   } else {
     # Local cache: check if all files exist in local_temp_path
@@ -286,7 +290,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
       aws.s3::put_object(
         file = tiff_path,
         object = tiff_bucket_path,
-        bucket = s3_cfg$bucket,
+        bucket = s3_cfg$s3_bucket_name,
         region = s3_cfg$region
       )
       log_progress("TIFF upload successful.")
@@ -301,7 +305,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
         aws.s3::put_object(
           file = png_paths[i],
           object = png_bucket_paths[i],
-          bucket = s3_cfg$bucket,
+          bucket = s3_cfg$s3_bucket_name,
           region = s3_cfg$region
         )
         log_progress(paste("PNG upload successful:", png_bucket_paths[i]))
@@ -315,7 +319,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
         aws.s3::put_object(
           file = symbology_paths[i],
           object = symbology_bucket_paths[i],
-          bucket = s3_cfg$bucket,
+          bucket = s3_cfg$s3_bucket_name,
           region = s3_cfg$region
         )
         log_progress(paste("JSON upload successful:", symbology_bucket_paths[i]))
