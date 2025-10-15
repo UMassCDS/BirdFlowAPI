@@ -315,7 +315,7 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
       file.remove(png_paths[i])
 
       log_progress(paste("Uploading JSON to S3:", symbology_paths[i], "->", symbology_bucket_paths[i]))
-      return(tryCatch({
+      s3_upload_failed <- tryCatch({
         aws.s3::put_object(
           file = symbology_paths[i],
           object = symbology_bucket_paths[i],
@@ -323,10 +323,14 @@ flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) 
           region = s3_cfg$region
         )
         log_progress(paste("JSON upload successful:", symbology_bucket_paths[i]))
+        return(FALSE)
       }, error = function(e) {
         log_progress(paste("JSON upload ERROR:", e$message))
+        return(TRUE)
+      })
+      if(s3_upload_failed) {
         return(format_error("Failed to upload to S3."))
-      }))
+      }
       file.remove(symbology_paths[i])
     }
     log_progress(paste0("All files uploaded to S3 and local files removed. Output path: ", out_path))
