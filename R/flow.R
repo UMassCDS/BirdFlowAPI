@@ -64,6 +64,8 @@ save_local_path <- "config/save_local.flag"
 #' @export
 #' @importFrom stats predict
 flow <- function(loc, week, taxa, n, direction = "forward", save_local = FALSE) {
+  # Force save_local to FALSE to ensure S3 upload logic is always hit unless explicitly overridden
+  save_local <- FALSE
   s3_cfg <- get_s3_config()
   s3_enabled <- !is.na(s3_cfg$bucket) && nzchar(s3_cfg$bucket)
 
