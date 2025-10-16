@@ -31,3 +31,15 @@ The `data_pipeline` folder contains an automated data pipeline that scrapes data
 1. Run `./run_pipeline.sh` to run the pipeline.
 
 This will generate 3 JSON files in `/data/processed_data/` for each data source. JSON files are overwritten by default. Currently, the jitter is re-calculated every time the pipeline is run.
+
+## Running and Testing the Data Pipeline Locally in Docker
+
+```
+docker build -t bird-flow-pipeline .
+docker run --rm bird-flow-pipeline
+```
+
+## Documentation
+
+For a detailed overview of the BirdFlow Automated Data Pipeline architecture and deployment, see the [BirdFlow Automated Data Pipeline Architecture documentation](https://umass-cds-ai.atlassian.net/wiki/spaces/HOME/pages/1018200065/BirdFlow+Automated+Data+Pipeline+Architecture).
+
