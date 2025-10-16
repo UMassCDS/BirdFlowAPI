@@ -39,6 +39,20 @@ docker build -t bird-flow-pipeline .
 docker run --rm bird-flow-pipeline
 ```
 
+## How Files are stored?
+For each .json file in data/processed_data/, two uploads happen:
+Versioned (history) upload:
+- The file is uploaded to S3 under outbreaks/history/{base_filename}_{timestamp}.json
+- Example: outbreaks/history/bovine_20251015_235959.json
+This keeps a historical record of every upload with a unique timestamp.
+
+Root (latest) upload:
+- The same file is uploaded to S3 under outbreaks/{filename}
+- Example: outbreaks/bovine.json
+This always contains the latest version and is overwritten each time.
+
+All historical versions are kept in outbreaks/history/ with timestamps. The latest version is always at outbreaks/{filename}.
+
 ## Documentation
 
 For a detailed overview of the BirdFlow Automated Data Pipeline architecture and deployment, see the [BirdFlow Automated Data Pipeline Architecture documentation](https://umass-cds-ai.atlassian.net/wiki/spaces/HOME/pages/1018200065/BirdFlow+Automated+Data+Pipeline+Architecture).
