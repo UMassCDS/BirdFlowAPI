@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from src.utils.rename_most_recent import rename_most_recent
 from src.constants.environment_constants import CHROMEDRIVER_PATH
 import time
 import os
@@ -43,12 +44,7 @@ driver.execute_script("arguments[0].click();", download_btn)
 
 # "A Table by Confirmation Date" listbox item
 listbox_item = WebDriverWait(driver, 30).until(
-    EC.element_to_be_clickable((By.XPATH, "//div[@role='option' and @title='Affected Totals']"))
-)
-driver.execute_script("arguments[0].scrollIntoView(true);", listbox_item)
-driver.execute_script("arguments[0].click();", listbox_item)
-listbox_item = WebDriverWait(driver, 30).until(
-    EC.element_to_be_clickable((By.XPATH, "//div[@role='option' and @title='A Table by Confirmation Date']"))
+    EC.element_to_be_clickable((By.XPATH, "//div[@role='option' and @title='X - Table by Confirmation Date']"))
 )
 driver.execute_script("arguments[0].scrollIntoView(true);", listbox_item)
 driver.execute_script("arguments[0].click();", listbox_item)
@@ -68,3 +64,5 @@ driver.execute_script("arguments[0].click();", popup_download_btn)
 # Extra time to observe changes in webpage
 time.sleep(2)
 
+# Rename the downloaded file to a standardized name
+rename_most_recent(download_dir, "poultry.csv")

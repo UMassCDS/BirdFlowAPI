@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from src.utils.rename_most_recent import rename_most_recent
 from src.constants.environment_constants import CHROMEDRIVER_PATH
 import time
 import os
@@ -43,3 +44,6 @@ driver.execute_script("arguments[0].click();", csv_download_button)
 
 # Extra time to observe changes in webpage
 time.sleep(2)
+
+# Rename the downloaded file to a standardized name
+rename_most_recent(download_dir, "wild_birds.csv")

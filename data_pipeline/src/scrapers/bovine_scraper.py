@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from src.constants.environment_constants import CHROMEDRIVER_PATH
+from src.utils.rename_most_recent import rename_most_recent
 import time
 import os
 
@@ -65,3 +66,6 @@ popup_download_btn = WebDriverWait(driver, 30).until(
 driver.execute_script("arguments[0].click();", popup_download_btn)
 
 time.sleep(2)
+
+# Rename the downloaded file to a standardized name
+rename_most_recent(download_dir, "bovine.csv")

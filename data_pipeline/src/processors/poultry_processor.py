@@ -11,14 +11,17 @@ counties["State"] = counties["State"].str.title()
 
 # CBS = commercial and backyard stocks = poultry
 poultry_data_path = os.path.join("data", "scraped_data", "poultry.csv")
-data = pd.read_csv(poultry_data_path, delimiter="\t", encoding="utf-16", skiprows=1)
+data = pd.read_csv(poultry_data_path, delimiter="\t", encoding="utf-16", header=1, dtype=str)
+data = data.rename(columns={"Confirmed Diagnosis": "Confirmed"})
 data = pd.melt(
     data,
-    id_vars=["Confirmed", "State", "County Name", "Special Id", "Production"],
+    id_vars=["Confirmed", "State", "County Name", "Special ID", "Production"],
     var_name="EndDate",
     value_name="NumInfected",
     ignore_index=True
 ).dropna().reset_index(drop=True)
+data["NumInfected"] = data["NumInfected"].str.replace(',', '').astype(int)
+
 data = pd.merge(left=data, right=counties, how="inner", on=("County Name", "State"))
 
 # Add random jitter to lat-lon
@@ -29,7 +32,7 @@ data["GeoLoc"] = data.apply(
 
 # Convert date to appropriate format
 data["Confirmed"] = data.apply(
-    func=lambda row: format_date(row["Confirmed"], "%d-%b-%y"),
+    func=lambda row: format_date(row["Confirmed"], ["%d-%b-%y", "%d-%b-%Y", "%M-%b-%Y"]),
     axis=1
 )
 
