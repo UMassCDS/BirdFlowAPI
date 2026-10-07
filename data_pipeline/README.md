@@ -4,11 +4,13 @@ The `data_pipeline` folder contains an automated data pipeline that scrapes data
 
 ## Prerequisites
 
+**Note**: Ensure you are using Python 3.12. If you encounter requirement installation failures, double check this. 
+
 1. Switch to the `data_pipeline` directory:
 
    `cd data_pipeline`
 
-2. Create a python virtual environment:
+2. Create a virtual environment:
 
    `python -m venv dataenv`
 

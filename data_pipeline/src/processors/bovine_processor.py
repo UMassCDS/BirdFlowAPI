@@ -8,7 +8,8 @@ states = pd.read_csv(states_csv_path).drop(["index"], axis=1)
 states = states.rename(columns={"state": "State"})
 
 bovine_data_path = os.path.join("data", "scraped_data", "bovine.csv")
-data = pd.read_csv(bovine_data_path, delimiter="\t", encoding="utf-16")
+data = pd.read_csv(bovine_data_path, header=1, delimiter="\t", encoding="utf-16") 
+data = data.rename(columns={"Confirmed Diagnosis": "Confirmed"})
 
 data = pd.merge(data, states, how="left", on="State")
 data["County Name"] = None
@@ -24,7 +25,7 @@ data["GeoLoc"] = data.apply(
 
 # Convert date to appropriate format
 data["Confirmed"] = data.apply(
-    func=lambda row: format_date(row["Confirmed"], "%d-%b-%y"),
+    func=lambda row: format_date(row["Confirmed"], ["%d-%b-%y"]),
     axis=1
 )
 

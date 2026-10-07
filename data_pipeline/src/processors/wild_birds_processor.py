@@ -23,7 +23,7 @@ data["GeoLoc"] = data.apply(
 
 # Convert date to appropriate format
 data["Confirmed"] = data.apply(
-    func=lambda row: format_date(row["Confirmed"], "%m/%d/%Y"),
+    func=lambda row: format_date(row["Confirmed"], ["%m/%d/%Y"]),
     axis=1
 )
 
